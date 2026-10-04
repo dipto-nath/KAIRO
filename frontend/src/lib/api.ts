@@ -4,6 +4,62 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000/api";
 
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API Error: ${response.status} ${text}`);
+  }
+  const json = await response.json();
+  if (json.success === false) {
+    throw new Error(`API Error: ${json.error?.message || "Unknown error"}`);
+  }
+  return json.data !== undefined ? json.data : json;
+}
+
+// ── Types ───────────────────────────────────────────────────
+
+export interface SessionCreateRequest {
+  store_id: string;
+  language?: string;
+}
+
+export interface SessionCreateResponse {
+  id: string;
+  store_id: string;
+  language: string;
+  status: string;
+}
+
+export interface SessionStateResponse {
+  session: SessionCreateResponse;
+  transcript: any[];
+}
+
+export interface AgentMessageRequest {
+  session_id: string;
+  message: string;
+}
+
+export interface AgentMessageResponse {
+  response: string;
+}
+
+export interface SessionEventsResponse {
+  events: any[];
+}
+
+export interface VoiceStartRequest {
+  session_id: string;
+}
+
+export interface VoiceStartResponse {
+  status: string;
+}
+
+export interface VoiceStopRequest {
+  session_id: string;
+}
+
 // ── Product Types ─────────────────────────────────────────────
 
 export interface ProductSearchParams {
@@ -333,12 +389,13 @@ export function convertBackendInventory(backendInventory: InventoryCheckResponse
 
 // Helper to convert backend Reservation to frontend Reservation type
 export function convertBackendReservation(backendReservation: ReservationResponse): import("@/types").Reservation {
+  const firstItem = backendReservation.items[0] as Record<string, any> | undefined;
   return {
     id: backendReservation.id,
-    productId: backendReservation.items[0]?.product_id ?? "",
-    productName: backendReservation.items[0]?.product_name ?? "",
-    quantity: backendReservation.items[0]?.quantity ?? 1,
-    unitPrice: backendReservation.items[0]?.unit_price ?? 0,
+    productId: firstItem?.product_id ?? "",
+    productName: firstItem?.product_name ?? "",
+    quantity: firstItem?.quantity ?? 1,
+    unitPrice: firstItem?.unit_price ?? 0,
     totalPrice: backendReservation.total_amount,
     storeId: backendReservation.store_id,
     storeName: backendReservation.store_name,

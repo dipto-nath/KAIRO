@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, FC } from "react";
+import React, { useEffect, useRef, useCallback, FC } from "react";
 import { Renderer, Program, Mesh, Triangle, Vec3 } from "ogl";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,8 @@ interface VoicePoweredOrbProps {
   maxRotationSpeed?: number;
   maxHoverIntensity?: number;
   onVoiceDetected?: (detected: boolean) => void;
+  /** External MediaStream to use for visualization (avoids duplicate getUserMedia calls) */
+  externalStream?: MediaStream | null;
 }
 
 export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
@@ -22,14 +24,18 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
   maxRotationSpeed = 1.2,
   maxHoverIntensity = 0.8,
   onVoiceDetected,
+  externalStream = null,
 }) => {
   const ctnDom = useRef<HTMLDivElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
-  const animationFrameRef = useRef<number>();
+  const dataArrayRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
   const mediaStreamRef = useRef<MediaStream | null>(null);
+  
+  // Track whether we own the stream (for cleanup)
+  const ownsStreamRef = useRef<boolean>(false);
 
   const vert = /* glsl */ `
     precision highp float;
@@ -211,14 +217,21 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
   };
 
   // Stop microphone and cleanup
-  const stopMicrophone = () => {
+  const stopMicrophone = useCallback(() => {
     try {
-      // Stop all tracks in the media stream
-      if (mediaStreamRef.current) {
+      // Stop animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+
+      // Only stop tracks if we own the stream (not using external stream)
+      if (ownsStreamRef.current && mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(track => {
           track.stop();
         });
         mediaStreamRef.current = null;
+        ownsStreamRef.current = false;
       }
 
       // Disconnect and cleanup audio nodes
@@ -243,7 +256,7 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
     } catch (error) {
       console.warn('Error stopping microphone:', error);
     }
-  };
+  }, []);
 
   // Initialize microphone access
   const initMicrophone = async () => {
@@ -251,14 +264,26 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
       // Clean up any existing microphone first
       stopMicrophone();
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,  // Better for voice analysis
-          noiseSuppression: false,  // Better for voice analysis
-          autoGainControl: false,   // Better for voice analysis
-          sampleRate: 44100,
-        },
-      });
+      let stream: MediaStream;
+      
+      if (externalStream) {
+        // Use external stream (shared with useSession)
+        stream = externalStream;
+        ownsStreamRef.current = false;
+        console.log('Using external MediaStream for visualization');
+      } else {
+        // Create our own stream (fallback)
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,  // Better for voice analysis
+            noiseSuppression: false,  // Better for voice analysis
+            autoGainControl: false,   // Better for voice analysis
+            sampleRate: 44100,
+          },
+        });
+        ownsStreamRef.current = true;
+        console.log('Created own MediaStream for visualization');
+      }
 
       // Store the stream reference for cleanup
       mediaStreamRef.current = stream;
@@ -295,7 +320,8 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
     if (!container) return;
 
     let rendererInstance: Renderer | null = null;
-    let glContext: WebGLRenderingContext | WebGL2RenderingContext | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let glContext: any = null;
     let rafId: number;
     let program: Program | null = null;
 
@@ -317,7 +343,9 @@ export const VoicePoweredOrb: FC<VoicePoweredOrbProps> = ({
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
-      container.appendChild(glContext.canvas);
+      // canvas could be OffscreenCanvas, cast to HTMLCanvasElement for DOM operations
+      const canvas = glContext.canvas as HTMLCanvasElement;
+      container.appendChild(canvas);
 
       const geometry = new Triangle(glContext);
       program = new Program(glContext, {

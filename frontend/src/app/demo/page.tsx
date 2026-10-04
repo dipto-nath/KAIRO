@@ -28,6 +28,7 @@ export default function DemoPage() {
     runSafetyEscalation,
     runLowStockAlternatives,
     addTranscript,
+  audioStream,
   } = useSession();
 
   const [activeScenario, setActiveScenario] = useState<DemoScenarioId | null>(null);
@@ -190,7 +191,7 @@ export default function DemoPage() {
             borderRight: "1px solid var(--color-kairo-border)",
           }}
         >
-          <VoiceCore state={session.status} size={200} />
+          <VoiceCore state={session.status} size={200} audioStream={audioStream} />
           <WaveformBars state={session.status} width={300} height={44} barCount={30} />
 
           {/* Active scenario label */}

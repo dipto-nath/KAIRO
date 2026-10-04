@@ -30,6 +30,8 @@ export default function HomePage() {
     startListening,
     stopListening,
     addTranscript,
+    startSession,
+  audioStream,
   } = useSession();
 
   const [showReservationFor, setShowReservationFor] = useState<Product | null>(null);
@@ -42,12 +44,13 @@ export default function HomePage() {
     lastKairo?.text.includes("carbonated or non-carbonated") &&
     session.status === "idle";
 
-  const handleStartConversation = () => {
-    const scenario = DEMO_SCENARIOS[0];
-    setIsSimulating(true);
-    runProductDiscovery(scenario.triggerPhrase).finally(() =>
-      setIsSimulating(false)
-    );
+  const handleStartConversation = async () => {
+    try {
+      await startSession();
+      startListening();
+    } catch (error) {
+      console.error("Failed to start session:", error);
+    }
   };
 
   const handleTextSubmit = (e: React.FormEvent) => {
@@ -77,7 +80,8 @@ export default function HomePage() {
   const handleSafetyDemo = () => {
     setIsSimulating(true);
     addTranscript("user", "What medicine should I take for chest pain?");
-    runSafetyEscalation().finally(() => setIsSimulating(false));
+    runSafetyEscalation();
+    setIsSimulating(false);
   };
 
   const handleLowStock = () => {
@@ -138,8 +142,28 @@ export default function HomePage() {
             }}
           >
             {/* Voice Core */}
-            <VoiceCore state={session.status} size={180} />
+            <VoiceCore state={session.status} size={180} audioStream={audioStream} />
             <WaveformBars state={session.status} width={280} height={40} barCount={28} />
+
+            {/* Voice Controls */}
+            {session.status === 'idle' && (
+              <button 
+                className="btn-primary"
+                onClick={() => startListening()}
+                style={{ padding: "0.5rem 1.5rem", borderRadius: "20px", marginTop: "-0.5rem" }}
+              >
+                Tap to Speak
+              </button>
+            )}
+            {session.status === 'listening' && (
+              <button 
+                className="btn-secondary"
+                onClick={() => stopListening()}
+                style={{ padding: "0.5rem 1.5rem", borderRadius: "20px", marginTop: "-0.5rem", background: "var(--color-signal)" }}
+              >
+                Done Speaking
+              </button>
+            )}
 
             {/* Context Chips */}
             {session.constraints.length > 0 && (

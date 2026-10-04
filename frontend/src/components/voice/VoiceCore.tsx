@@ -6,6 +6,8 @@ import type { VoiceState } from "@/types";
 interface VoiceCoreProps {
   state: VoiceState;
   size?: number;
+  /** Audio stream from useSession for visualization */
+  audioStream?: MediaStream | null;
 }
 
 // Color map per state (We'll map these colors to hue for the orb roughly)
@@ -47,7 +49,7 @@ const STATE_CONFIG: Record<
   },
 };
 
-export function VoiceCore({ state, size = 200 }: VoiceCoreProps) {
+export function VoiceCore({ state, size = 200, audioStream = null }: VoiceCoreProps) {
   const config = STATE_CONFIG[state];
 
   // Only enable voice control when listening
@@ -69,6 +71,7 @@ export function VoiceCore({ state, size = 200 }: VoiceCoreProps) {
         <VoicePoweredOrb
           enableVoiceControl={enableVoiceControl}
           hue={config.hue}
+          externalStream={audioStream}
         />
       </div>
 

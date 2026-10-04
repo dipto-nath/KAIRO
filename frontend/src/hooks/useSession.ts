@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type {
   SessionState,
   VoiceState,
@@ -13,12 +13,76 @@ import type {
   Reservation,
   SafetyState,
 } from "@/types";
-import {
-  MOCK_PRODUCTS,
-  MOCK_INVENTORY,
-  createMockReservation,
-} from "@/data/mock";
-import { generateId, sleep } from "@/lib/utils";
+import { generateId } from "@/lib/utils";
+import { api, convertBackendProduct, convertBackendReservation } from "@/lib/api";
+
+// Audio processing utilities
+const TARGET_SAMPLE_RATE = 16000;
+const CHUNK_INTERVAL_MS = 250;
+
+/**
+ * Resample audio buffer from source sample rate to target sample rate
+ */
+async function resampleAudioBuffer(audioBuffer: AudioBuffer, targetSampleRate: number): Promise<AudioBuffer> {
+  const sourceSampleRate = audioBuffer.sampleRate;
+  if (sourceSampleRate === targetSampleRate) {
+    return audioBuffer;
+  }
+
+  const offlineContext = new OfflineAudioContext(
+    audioBuffer.numberOfChannels,
+    Math.ceil(audioBuffer.duration * targetSampleRate),
+    targetSampleRate
+  );
+
+  const source = offlineContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(offlineContext.destination);
+  source.start(0);
+
+  return offlineContext.startRendering();
+}
+
+/**
+ * Convert AudioBuffer to 16-bit PCM bytes
+ */
+function audioBufferToPcm16(audioBuffer: AudioBuffer): Uint8Array {
+  const numChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length;
+  const result = new Uint8Array(length * numChannels * 2); // 16-bit = 2 bytes per sample
+  let offset = 0;
+
+  for (let i = 0; i < length; i++) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(channel)[i]));
+      const int16 = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+      result[offset++] = int16 & 0xff;
+      result[offset++] = (int16 >> 8) & 0xff;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Convert WebM/Opus blob to PCM16 at target sample rate
+ */
+async function convertWebMToPcm16(webmBlob: Blob, targetSampleRate: number = TARGET_SAMPLE_RATE): Promise<Uint8Array> {
+  const arrayBuffer = await webmBlob.arrayBuffer();
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: targetSampleRate });
+  
+  // Resume context if suspended
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume();
+  }
+
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  const resampledBuffer = await resampleAudioBuffer(audioBuffer, targetSampleRate);
+  const pcm16 = audioBufferToPcm16(resampledBuffer);
+  
+  await audioContext.close();
+  return pcm16;
+}
 
 // ── Initial State ──────────────────────────────────────────
 
@@ -51,7 +115,12 @@ function createInitialState(): SessionState {
 
 export function useSession() {
   const [session, setSession] = useState<SessionState>(createInitialState);
-  const abortRef = useRef<AbortController | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const [backendSessionId, setBackendSessionId] = useState<string | null>(null);
+  const voiceWsRef = useRef<WebSocket | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
 
   const update = useCallback(
     (partial: Partial<SessionState>) =>
@@ -86,455 +155,421 @@ export function useSession() {
     []
   );
 
-  const addActivity = useCallback(
-    (label: string, status: ActivityStep["status"] = "pending"): string => {
-      const id = generateId();
-      const step: ActivityStep = { id, label, status, timestamp: new Date() };
-      setSession((prev) => ({
-        ...prev,
-        activities: [...prev.activities, step],
-      }));
-      return id;
-    },
-    []
-  );
-
-  const updateActivity = useCallback(
-    (id: string, status: ActivityStep["status"]) =>
-      setSession((prev) => ({
-        ...prev,
-        activities: prev.activities.map((a) =>
-          a.id === id ? { ...a, status } : a
-        ),
-      })),
-    []
-  );
-
-  const addTool = useCallback(
-    (name: string, displayName: string, description: string): string => {
-      const id = generateId();
-      const tool: ToolCall = {
-        id,
-        name,
-        displayName,
-        description,
-        status: "running",
-        startedAt: new Date(),
-      };
-      setSession((prev) => ({
-        ...prev,
-        toolHistory: [...prev.toolHistory, tool],
-        metrics: {
-          ...prev.metrics,
-          toolCallCount: prev.metrics.toolCallCount + 1,
-        },
-      }));
-      return id;
-    },
-    []
-  );
-
-  const updateTool = useCallback(
-    (
-      id: string,
-      status: ToolCall["status"],
-      output?: Record<string, unknown>
-    ) =>
-      setSession((prev) => ({
-        ...prev,
-        toolHistory: prev.toolHistory.map((t) =>
-          t.id === id
-            ? { ...t, status, completedAt: new Date(), output }
-            : t
-        ),
-      })),
-    []
-  );
-
-  const setConstraints = useCallback(
-    (constraints: ContextConstraint[]) => update({ constraints }),
-    [update]
-  );
-
-  const resetSession = useCallback(() => {
-    abortRef.current?.abort();
-    setSession(createInitialState());
+  const cleanupSSE = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
   }, []);
 
-  // ── Golden Path: Product Discovery ──────────────────────
+  const resetSession = useCallback(() => {
+    cleanupSSE();
+    setBackendSessionId(null);
+    setSession(createInitialState());
+  }, [cleanupSSE]);
+
+  const startSession = useCallback(async () => {
+    try {
+      setVoiceState("listening", "IDLE");
+      const res = await api.createSession({ store_id: "store-042", language: "en" });
+      const sessionId = res.id;
+      setBackendSessionId(sessionId);
+
+      // Connect SSE
+      cleanupSSE();
+      const sse = new EventSource(api.getEventStreamURL(sessionId));
+      eventSourceRef.current = sse;
+
+      sse.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleBackendEvent(data);
+        } catch (e) {
+          console.error("Failed to parse SSE event:", e);
+        }
+      };
+
+      sse.onerror = (error) => {
+        console.error("SSE Error:", error);
+      };
+
+      return sessionId;
+    } catch (error) {
+      console.error("Failed to start session:", error);
+      setSession((prev) => ({ ...prev, error: "Failed to connect to backend" }));
+      throw error;
+    }
+  }, [cleanupSSE, setVoiceState]);
+
+  const handleBackendEvent = useCallback((eventData: any) => {
+    const { type, payload } = eventData;
+    
+    switch (type) {
+      case "AGENT_THINKING":
+        setVoiceState("thinking", "UNDERSTANDING");
+        break;
+      case "AGENT_SPEAKING":
+        setVoiceState("speaking", "RESPONDING");
+        if (payload?.response) {
+          addTranscript("kairo", payload.response);
+        }
+        setTimeout(() => setVoiceState("idle", "IDLE"), 3000);
+        break;
+      case "TOOL_STARTED":
+        setVoiceState("tool_running", "TOOL_EXECUTION");
+        setSession((prev) => ({
+          ...prev,
+          activities: [...prev.activities, {
+            id: generateId(),
+            label: `Running ${payload.tool}...`,
+            status: "active",
+            timestamp: new Date(),
+          }]
+        }));
+        break;
+      case "TOOL_COMPLETED":
+        setVoiceState("thinking", "PLANNING");
+        if (payload?.tool === "search_products" && payload.output?.products) {
+          const frontendProducts = payload.output.products.map((p: any) => convertBackendProduct(p));
+          setSession((prev) => ({
+            ...prev,
+            products: frontendProducts,
+            activities: prev.activities.map((a, i) => 
+              i === prev.activities.length - 1 ? { ...a, status: "complete" } : a
+            )
+          }));
+        }
+        break;
+      case "ESCALATION_REQUIRED":
+        setVoiceState("speaking", "ESCALATION");
+        setSession((prev) => ({
+          ...prev,
+          safetyState: {
+            triggered: true,
+            reason: payload.reason,
+            category: payload.category,
+            escalationAvailable: true,
+          }
+        }));
+        addTranscript("kairo", "I can help with product information, but I can't diagnose or recommend treatment. A qualified healthcare professional should help with this.");
+        break;
+      default:
+        console.log("Unhandled backend event:", type, payload);
+    }
+  }, [setVoiceState, addTranscript]);
 
   const runProductDiscovery = useCallback(
     async (userInput: string) => {
-      abortRef.current?.abort();
-      const abort = new AbortController();
-      abortRef.current = abort;
+      let currentSessionId = backendSessionId;
+      if (!currentSessionId) {
+        currentSessionId = await startSession();
+      }
+      if (!currentSessionId) return; // Still failed to start
 
-      const startTime = Date.now();
-
-      // Reset product/reservation state, keep existing
-      setSession((prev) => ({
-        ...prev,
-        status: "listening",
-        agentState: "LISTENING",
-        products: [],
-        selectedProduct: undefined,
-        inventory: undefined,
-        reservation: undefined,
-        safetyState: undefined,
-        error: undefined,
-        activities: [],
-        toolHistory: [],
-        constraints: [],
-      }));
-
-      await sleep(800);
-      if (abort.signal.aborted) return;
-
-      // User speaks
       addTranscript("user", userInput);
       setVoiceState("thinking", "UNDERSTANDING");
-
-      await sleep(1000);
-      if (abort.signal.aborted) return;
-
-      // Detect safety
-      const isSafetyTrigger =
-        /chest pain|medicine|medication|drug|diagnos|treatment|hospital|emergency/i.test(
-          userInput
-        );
-
-      if (isSafetyTrigger) {
-        await runSafetyEscalation(abort);
-        return;
-      }
-
-      // Step: understood
-      const understandId = addActivity("Understood request", "active");
-      await sleep(600);
-      if (abort.signal.aborted) return;
-      updateActivity(understandId, "complete");
-
-      // Parse constraints
-      const constraints: ContextConstraint[] = [];
-      const priceMatch = userInput.match(/₹?\s*(\d+)/);
-      if (priceMatch) {
-        constraints.push({
-          key: "price",
-          label: "Price",
-          value: `≤ ₹${priceMatch[1]}`,
-          icon: "₹",
+      
+      try {
+        await api.sendMessage({
+          session_id: currentSessionId,
+          message: userInput,
         });
+      } catch (e) {
+        console.error("Failed to send message:", e);
       }
-      if (/cold|chilled|refrigerat/i.test(userInput)) {
-        constraints.push({ key: "temp", label: "Temperature", value: "Cold", icon: "❄️" });
-      }
-      if (/not.*sweet|low.?sugar|sugar.?free|no sugar|not too sweet/i.test(userInput)) {
-        constraints.push({ key: "sugar", label: "Sugar", value: "Low", icon: "🌿" });
-      }
-      if (/non.?carbonated|not carbonated|still/i.test(userInput)) {
-        constraints.push({ key: "carbonation", label: "Type", value: "Non-carbonated", icon: "💧" });
-      }
-      if (/carbonated|sparkling|fizzy/i.test(userInput)) {
-        constraints.push({ key: "carbonation", label: "Type", value: "Carbonated", icon: "🫧" });
-      }
-
-      setConstraints(constraints);
-      const constraintId = addActivity("Constraints identified", "active");
-      await sleep(500);
-      if (abort.signal.aborted) return;
-      updateActivity(constraintId, "complete");
-
-      // Kairo asks follow-up if carbonation not specified
-      const hasCarbonation = constraints.some((c) => c.key === "carbonation");
-      if (!hasCarbonation && !/reserve|book/i.test(userInput)) {
-        setVoiceState("speaking", "CLARIFYING");
-        addTranscript("kairo", "Sure. Would you prefer carbonated or non-carbonated?");
-        await sleep(2500);
-        if (abort.signal.aborted) return;
-
-        // Simulate user answering non-carbonated
-        setVoiceState("listening", "LISTENING");
-        await sleep(1500);
-        if (abort.signal.aborted) return;
-        addTranscript("user", "Non-carbonated.");
-        constraints.push({ key: "carbonation", label: "Type", value: "Non-carbonated", icon: "💧" });
-        setConstraints([...constraints]);
-        setVoiceState("thinking", "PLANNING");
-        await sleep(700);
-        if (abort.signal.aborted) return;
-      } else {
-        setVoiceState("thinking", "PLANNING");
-      }
-
-      // Tool: search_products
-      const searchId = addActivity("Searching product catalog", "active");
-      const toolSearchId = addTool(
-        "search_products",
-        "Product Search",
-        "Searching 482 products"
-      );
-      setVoiceState("tool_running", "TOOL_EXECUTION");
-      await sleep(1400);
-      if (abort.signal.aborted) return;
-
-      // Filter products
-      const maxPrice = priceMatch ? parseInt(priceMatch[1]) : 999;
-      const wantCold = constraints.some((c) => c.key === "temp");
-      const wantLowSugar = constraints.some((c) => c.key === "sugar");
-      const wantNonCarb = constraints.some(
-        (c) => c.key === "carbonation" && c.value === "Non-carbonated"
-      );
-      const wantCarb = constraints.some(
-        (c) => c.key === "carbonation" && c.value === "Carbonated"
-      );
-
-      const filtered = MOCK_PRODUCTS.filter((p) => {
-        if (p.price > maxPrice) return false;
-        if (wantCold && !p.attributes.some((a) => /cold|chilled/i.test(a))) return false;
-        if (wantLowSugar && !p.attributes.some((a) => /low sugar|zero sugar|light sweet/i.test(a))) return false;
-        if (wantNonCarb && p.attributes.some((a) => /carbonated/i.test(a) && !/non/i.test(a))) return false;
-        if (wantCarb && !p.attributes.some((a) => /carbonated/i.test(a))) return false;
-        return true;
-      }).slice(0, 3);
-
-      const results = filtered.length > 0 ? filtered : MOCK_PRODUCTS.slice(0, 2);
-
-      updateTool(toolSearchId, "success", { count: results.length });
-      updateActivity(searchId, "complete");
-
-      // Tool: check_inventory
-      const invId = addActivity("Checking live inventory", "active");
-      const toolInvId = addTool(
-        "check_inventory",
-        "Inventory Check",
-        `Checking Store #042`
-      );
-      await sleep(1200);
-      if (abort.signal.aborted) return;
-
-      const topProduct = results[0];
-      const invData = MOCK_INVENTORY[topProduct.id];
-      updateTool(toolInvId, "success", {
-        product: topProduct.id,
-        quantity: invData?.quantity ?? 0,
-      });
-      updateActivity(invId, "complete");
-
-      setSession((prev) => ({
-        ...prev,
-        products: results,
-        inventory: invData,
-        metrics: {
-          ...prev.metrics,
-          responseLatencyMs: Date.now() - startTime,
-          taskCompletionRate: 90,
-        },
-      }));
-
-      setVoiceState("speaking", "RESPONDING");
-      await sleep(600);
-      if (abort.signal.aborted) return;
-
-      const responseText =
-        results.length >= 2
-          ? `I found ${results.length} options. The ${results[0].name} at ₹${results[0].price} is the closest match — it's cold, low sugar, and non-carbonated. There are ${invData?.quantity ?? "a few"} in stock.`
-          : `I found the ${results[0].name} at ₹${results[0].price}. It's in stock.`;
-
-      addTranscript("kairo", responseText);
-
-      const recommendId = addActivity("Recommendation generated", "complete");
-      void recommendId;
-
-      setSession((prev) => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          taskCompletionRate: 100,
-        },
-      }));
-
-      await sleep(2000);
-      if (abort.signal.aborted) return;
-      setVoiceState("idle", "ACTION_COMPLETE");
     },
-    [addTranscript, addActivity, updateActivity, addTool, updateTool, setConstraints, setVoiceState]
+    [backendSessionId, startSession, addTranscript, setVoiceState]
   );
-
-  // ── Reservation ──────────────────────────────────────────
 
   const runReservation = useCallback(
     async (product: Product, quantity: number) => {
-      abortRef.current?.abort();
-      const abort = new AbortController();
-      abortRef.current = abort;
-
+      if (!backendSessionId) return;
       setVoiceState("action", "TOOL_EXECUTION");
-      const toolId = addTool(
-        "create_reservation",
-        "Reservation",
-        `Reserving ${quantity}× ${product.name}`
-      );
-      const actId = addActivity(`Reserving ${quantity}× ${product.name}`, "active");
-      await sleep(1500);
-      if (abort.signal.aborted) return;
+      
+      try {
+        const res = await api.prepareReservation({
+          session_id: backendSessionId,
+          store_id: "store-042",
+          items: [{
+            product_id: product.id,
+            quantity,
+            unit_price: product.price
+          }]
+        });
 
-      const reservation = createMockReservation(product, quantity);
-      updateTool(toolId, "success", {
-        code: reservation.confirmationCode,
-        quantity,
-        total: reservation.totalPrice,
-      });
-      updateActivity(actId, "complete");
+        const confirmation = await api.confirmReservation({
+          reservation_id: res.reservation_id
+        });
 
-      setSession((prev) => ({
-        ...prev,
-        reservation,
-        status: "success",
-        agentState: "ACTION_COMPLETE",
-        metrics: {
-          ...prev.metrics,
-          taskCompletionRate: 100,
-        },
-      }));
+        const frontendReservation = convertBackendReservation(confirmation as any);
+        
+        setSession((prev) => ({
+          ...prev,
+          reservation: frontendReservation,
+          status: "success",
+          agentState: "ACTION_COMPLETE",
+        }));
+        
+        addTranscript("kairo", `Done. Reserved ${quantity} ${product.name}. Your code is ${frontendReservation.confirmationCode}.`);
 
-      addTranscript(
-        "kairo",
-        `Done. ${quantity} × ${product.name} reserved. Your code is ${reservation.confirmationCode}. Pick up within 30 minutes.`
-      );
+      } catch (e) {
+        console.error("Reservation failed:", e);
+      }
     },
-    [addTranscript, addActivity, updateActivity, addTool, updateTool, setVoiceState]
+    [backendSessionId, setVoiceState, addTranscript]
   );
 
   const updateReservation = useCallback(
     async (reservation: Reservation, newQuantity: number) => {
+      if (!backendSessionId) return;
       setVoiceState("action", "TOOL_EXECUTION");
-      const toolId = addTool(
-        "update_reservation",
-        "Update Reservation",
-        `Updating to ${newQuantity}×`
-      );
-      await sleep(1000);
+      
+      try {
+        await api.updateReservation({
+          reservation_id: reservation.id,
+          product_id: reservation.productId,
+          new_quantity: newQuantity
+        });
 
-      const updated: Reservation = {
-        ...reservation,
-        quantity: newQuantity,
-        totalPrice: reservation.unitPrice * newQuantity,
-      };
-      updateTool(toolId, "success", { quantity: newQuantity });
-      setSession((prev) => ({
-        ...prev,
-        reservation: updated,
-        status: "success",
-        agentState: "ACTION_COMPLETE",
-      }));
-      addTranscript("kairo", `Updated to ${newQuantity} × ${reservation.productName}.`);
+        setSession((prev) => ({
+          ...prev,
+          reservation: { ...reservation, quantity: newQuantity },
+          status: "success",
+          agentState: "ACTION_COMPLETE",
+        }));
+        
+        addTranscript("kairo", `Updated to ${newQuantity} ${reservation.productName}.`);
+      } catch (e) {
+        console.error("Update reservation failed", e);
+      }
     },
-    [addTranscript, addTool, updateTool, setVoiceState]
+    [backendSessionId, setVoiceState, addTranscript]
   );
-
-  // ── Safety Escalation ────────────────────────────────────
-
-  const runSafetyEscalation = useCallback(
-    async (abort?: AbortController) => {
-      setVoiceState("speaking", "ESCALATION");
-
-      const safety: SafetyState = {
-        triggered: true,
-        reason: "Healthcare-related decision",
-        category: "healthcare",
-        escalationAvailable: true,
-      };
-
-      await sleep(800);
-      if (abort?.signal.aborted) return;
-
-      setSession((prev) => ({ ...prev, safetyState: safety }));
-      addTranscript(
-        "kairo",
-        "I can help with product information, but I can't diagnose or recommend treatment. A qualified healthcare professional should help with this."
-      );
-    },
-    [addTranscript, setVoiceState]
-  );
-
-  // ── Low Stock / Alternatives ─────────────────────────────
 
   const runLowStockAlternatives = useCallback(async () => {
-    abortRef.current?.abort();
-    const abort = new AbortController();
-    abortRef.current = abort;
+    runProductDiscovery("Do you have Mango Lassi?");
+  }, [runProductDiscovery]);
 
-    setSession((prev) => ({
-      ...prev,
-      status: "listening",
-      agentState: "LISTENING",
-      products: [],
-      activities: [],
-      toolHistory: [],
-    }));
+  const startListening = useCallback(async () => {
+    let currentSessionId = backendSessionId;
+    if (!currentSessionId) {
+      currentSessionId = await startSession();
+    }
+    if (!currentSessionId) return;
 
-    addTranscript("user", "Do you have Mango Lassi?");
-    setVoiceState("thinking", "UNDERSTANDING");
-    await sleep(800);
-    if (abort.signal.aborted) return;
-
-    const searchId = addActivity("Searching for Mango Lassi", "active");
-    const toolId = addTool("search_products", "Product Search", "Searching catalog");
-    setVoiceState("tool_running", "TOOL_EXECUTION");
-    await sleep(1200);
-    if (abort.signal.aborted) return;
-
-    updateTool(toolId, "success", { result: "not_found" });
-    updateActivity(searchId, "complete");
-
-    const altId = addActivity("Finding alternatives", "active");
-    const altToolId = addTool("find_alternatives", "Alternative Search", "Finding similar products");
-    await sleep(1000);
-    if (abort.signal.aborted) return;
-
-    const alternatives = [MOCK_PRODUCTS[0], MOCK_PRODUCTS[1]];
-    updateTool(altToolId, "success", { count: 2 });
-    updateActivity(altId, "complete");
-
-    setSession((prev) => ({ ...prev, products: alternatives }));
-    setVoiceState("speaking", "RESPONDING");
-    addTranscript(
-      "kairo",
-      "Mango Lassi isn't available right now. I found two similar alternatives that match your preference."
-    );
-
-    await sleep(2000);
-    if (abort.signal.aborted) return;
-    setVoiceState("idle", "ACTION_COMPLETE");
-  }, [addTranscript, addActivity, updateActivity, addTool, updateTool, setVoiceState]);
-
-  // ── Simulate Listening ───────────────────────────────────
-
-  const startListening = useCallback(() => {
     setVoiceState("listening", "LISTENING");
-  }, [setVoiceState]);
+
+    let stream: MediaStream | null = null;
+    let ws: WebSocket | null = null;
+    let mediaRecorder: MediaRecorder | null = null;
+
+    try {
+      // Request microphone access with specific constraints for better quality
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000, // Request high sample rate, we'll resample to 16kHz
+          channelCount: 1,
+        },
+      });
+      audioStreamRef.current = stream;
+      setAudioStream(stream);
+
+      const wsUrl = api.getVoiceWebSocketURL(currentSessionId).replace("http", "ws");
+      ws = new WebSocket(wsUrl);
+      voiceWsRef.current = ws;
+
+      // Set up WebSocket event handlers BEFORE opening
+      ws.onopen = () => {
+        try {
+          if (!stream) {
+            console.error("No audio stream available");
+            return;
+          }
+          // Use webm with opus for better compression, we'll convert to PCM16
+          mediaRecorder = new MediaRecorder(stream, { 
+            mimeType: "audio/webm;codecs=opus" 
+          });
+          mediaRecorderRef.current = mediaRecorder;
+
+          mediaRecorder.ondataavailable = async (event) => {
+            if (event.data.size > 0 && ws?.readyState === WebSocket.OPEN) {
+              try {
+                // Convert WebM/Opus to PCM16 at 16kHz for Deepgram
+                const pcm16 = await convertWebMToPcm16(event.data, TARGET_SAMPLE_RATE);
+                
+                // Convert to base64
+                const base64 = btoa(
+                  String.fromCharCode(...pcm16)
+                );
+                
+                ws.send(JSON.stringify({ type: "audio", data: base64 }));
+              } catch (conversionErr) {
+                console.error("Audio conversion error:", conversionErr);
+              }
+            }
+          };
+
+          mediaRecorder.onerror = (event) => {
+            console.error("MediaRecorder error:", event);
+          };
+
+          mediaRecorder.start(CHUNK_INTERVAL_MS); // Send chunks every 250ms
+        } catch (recorderErr) {
+          console.error("Failed to create MediaRecorder:", recorderErr);
+          // Cleanup on recorder creation failure
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+          if (ws) {
+            ws.close();
+          }
+          setVoiceState("idle", "IDLE");
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "transcript" && msg.data?.is_final) {
+            const text = msg.data.text;
+            if (text) {
+              runProductDiscovery(text);
+              stopListening();
+            }
+          } else if (msg.type === "speech_start") {
+            // Optional: handle speech start
+            console.log("Speech started");
+          } else if (msg.type === "speech_end") {
+            // Optional: handle speech end
+            console.log("Speech ended");
+          } else if (msg.type === "ready") {
+            console.log("Voice session ready");
+          }
+        } catch (err) {
+          console.error("Voice WS error:", err);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket closed");
+        // Clean up audio resources when WebSocket closes
+        if (mediaRecorderRef.current) {
+          mediaRecorderRef.current.stop();
+          mediaRecorderRef.current = null;
+        }
+        if (audioStreamRef.current) {
+          audioStreamRef.current.getTracks().forEach(track => track.stop());
+          audioStreamRef.current = null;
+        }
+        setVoiceState("idle", "IDLE");
+      };
+
+    } catch (err) {
+      console.error("Failed to start voice:", err);
+      
+      // Provide user-friendly error messages
+      if (err instanceof DOMException) {
+        switch (err.name) {
+          case "NotAllowedError":
+            console.error("Microphone permission denied");
+            break;
+          case "NotFoundError":
+            console.error("No microphone found");
+            break;
+          case "NotReadableError":
+            console.error("Microphone is in use by another application");
+            break;
+          case "OverconstrainedError":
+            console.error("Microphone constraints not supported");
+            break;
+          default:
+            console.error("Microphone access error:", err.message);
+        }
+      }
+      
+      // Cleanup on error
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (ws) {
+        ws.close();
+      }
+      
+      setVoiceState("idle", "IDLE");
+    }
+  }, [backendSessionId, startSession, setVoiceState, runProductDiscovery]);
 
   const stopListening = useCallback(() => {
+    // Stop MediaRecorder first to flush any remaining data
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+    }
+    
+    // Stop audio tracks
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach(track => track.stop());
+      audioStreamRef.current = null;
+    }
+    setAudioStream(null);
+    
+    // Close WebSocket connection gracefully
+    if (voiceWsRef.current) {
+      // Send stop message to server before closing
+      if (voiceWsRef.current.readyState === WebSocket.OPEN) {
+        voiceWsRef.current.send(JSON.stringify({ type: "stop" }));
+      }
+      voiceWsRef.current.close();
+      voiceWsRef.current = null;
+    }
+    
     setVoiceState("idle", "IDLE");
   }, [setVoiceState]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => cleanupSSE();
+  }, [cleanupSSE]);
 
   return {
     session,
     update,
     setVoiceState,
     addTranscript,
-    addActivity,
-    updateActivity,
-    addTool,
-    updateTool,
-    setConstraints,
+    addActivity: (label: string, status: any = "pending") => {
+      const id = generateId();
+      setSession((prev) => ({
+        ...prev,
+        activities: [...prev.activities, { id, label, status, timestamp: new Date() }]
+      }));
+      return id;
+    },
+    updateActivity: (id: string, status: any) => {
+      setSession((prev) => ({
+        ...prev,
+        activities: prev.activities.map(a => a.id === id ? { ...a, status } : a)
+      }));
+    },
+    addTool: (name: string, displayName: string, description: string) => generateId(),
+    updateTool: () => {},
+    setConstraints: () => {},
     resetSession,
+    startSession,
     startListening,
     stopListening,
     runProductDiscovery,
     runReservation,
     updateReservation,
-    runSafetyEscalation: () => runSafetyEscalation(),
+    runSafetyEscalation: () => {},
     runLowStockAlternatives,
+    // Expose audio stream for visualization components
+    audioStream: audioStreamRef.current,
   };
 }

@@ -17,19 +17,16 @@ def upgrade() -> None:
         'pending_confirmation', 'confirmed', 'cancelled', 'expired', 'failed',
         name='reservation_status'
     )
-    reservation_status_enum.create(op.get_bind())
 
     session_status_enum = sa.Enum(
         'active', 'inactive', 'expired', 'ended',
         name='session_status'
     )
-    session_status_enum.create(op.get_bind())
 
     message_role_enum = sa.Enum(
         'user', 'assistant', 'system', 'tool',
         name='message_role'
     )
-    message_role_enum.create(op.get_bind())
 
     event_type_enum = sa.Enum(
         'SESSION_STARTED', 'USER_SPEAKING', 'USER_TRANSCRIPT', 'AGENT_THINKING',
@@ -40,7 +37,6 @@ def upgrade() -> None:
         'RESERVATION_CANCELLED', 'VOICE_CONNECTION_CHANGED',
         name='event_type'
     )
-    event_type_enum.create(op.get_bind())
 
     # Create stores table
     op.create_table(
