@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIRO | Real-Time Agentic AI Voice Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.7/build/spline-viewer.js"></script>
+</head>
+<body>
+    <!-- Background Design -->
+    <div class="bg-abstract">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="cherry-blossom-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <i data-lucide="audio-lines"></i>
+            <span>KAIRO</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#use-cases">Use Cases</a>
+            <a href="#how-it-works">How it Works</a>
+        </div>
+        <button class="btn-primary">Try KAIRO <i data-lucide="arrow-right"></i></button>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content glass-panel">
+                <div class="hero-badge">New! Real-Time AI Voice Agent 🎙️</div>
+                <h1>Your Voice. <br>Our AI. <span class="text-gradient">Real Help.</span></h1>
+                <p class="subtitle">An agentic AI voice assistant for pharmacies, convenience stores, and hospitals — designed to understand, reason, take action, and keep humans in control.</p>
+                
+                <div class="cta-group">
+                    <button class="btn-primary large" id="startVoiceBtn">
+                        <i data-lucide="mic"></i> Start Speaking 
+                    </button>
+                    <button class="btn-secondary large">
+                        <i data-lucide="play-circle"></i> Watch Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Virtual Assistant Interface Simulation -->
+            <div class="assistant-ui glass-panel">
+                <div class="ai-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">System Ready</span>
+                </div>
+                
+                <div class="video-feed" id="videoFeed">
+                    <img src="avatar.jpg" alt="AI Assistant Yuna" class="ai-avatar-img">
+                    <div class="ai-name-badge">
+                        Yuna - AI Assistant
+                    </div>
+                </div>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="message ai-message">
+                        <div class="avatar"><i data-lucide="bot"></i></div>
+                        <div class="bubble">
+                            <p>Hello! I am Yuna. Please click 'Start Speaking' and ask me a question!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Container for real-time interim speech text -->
+                <div class="interim-text" id="interimText"></div>
+
+                <div class="voice-wave" id="voiceWave">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+
+                <!-- Fallback Text Input -->
+                <div class="chat-input-area">
+                    <input type="text" id="textInput" placeholder="Mic not working? Type here..." />
+                    <button id="sendTextBtn" class="btn-primary" style="padding: 0.5rem;"><i data-lucide="send"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="page-section">
+            <h2 class="section-title">Features</h2>
+            <div class="grid-cards">
+                <div class="card glass-panel">
+                    <i data-lucide="mic" class="card-icon"></i>
+                    <h3>Speak Naturally</h3>
+                    <p>Communicate as you would with a human. Our AI understands context, emotion, and multi-language input.</p>
+                </div>
+                <div class="card glass-panel">
+                    <i data-lucide="brain" class="card-icon"></i>
+                    <h3>Smart Answers</h3>
+                    <p>Powered by advanced LLMs to provide accurate, helpful, and real-time responses.</p>
+                </div>
+                <div class="card glass-panel">
+                    <i data-lucide="settings" class="card-icon"></i>
+                    <h3>Complete Real Tasks</h3>
+                    <p>Connects to your databases to check inventory, book appointments, or verify prices.</p>
+                </div>
+                <div class="card glass-panel">
+                    <i data-lucide="shield-check" class="card-icon"></i>
+                    <h3>Safe & Controlled</h3>
+                    <p>Always escalates complex or sensitive tasks to a human worker automatically.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases Section -->
+        <section id="use-cases" class="page-section">
+            <h2 class="section-title">Use Cases</h2>
+            <div class="grid-cards three-cols">
+                <div class="card glass-panel">
+                    <i data-lucide="pill" class="card-icon text-blue"></i>
+                    <h3>Pharmacy</h3>
+                    <p>Help customers find medicines, check drug interactions, and escalate to a pharmacist for prescriptions.</p>
+                </div>
+                <div class="card glass-panel">
+                    <i data-lucide="shopping-cart" class="card-icon text-green"></i>
+                    <h3>Convenience Store</h3>
+                    <p>Assist with product discovery, verify stock availability, and provide store navigation.</p>
+                </div>
+                <div class="card glass-panel">
+                    <i data-lucide="building-2" class="card-icon text-red"></i>
+                    <h3>Hospital & Clinic</h3>
+                    <p>Schedule appointments, provide department navigation, and offer administrative support.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works Section -->
+        <section id="how-it-works" class="page-section">
+            <h2 class="section-title">How It Works</h2>
+            <div class="timeline">
+                <div class="timeline-step glass-panel">
+                    <div class="step-num">1</div>
+                    <h3>Listen</h3>
+                    <p>Understands your voice in real time.</p>
+                </div>
+                <div class="timeline-step glass-panel">
+                    <div class="step-num">2</div>
+                    <h3>Reason</h3>
+                    <p>Identifies intent and plans the next steps.</p>
+                </div>
+                <div class="timeline-step glass-panel">
+                    <div class="step-num">3</div>
+                    <h3>Use Tools</h3>
+                    <p>Connects to databases, systems and APIs.</p>
+                </div>
+                <div class="timeline-step glass-panel">
+                    <div class="step-num">4</div>
+                    <h3>Take Action</h3>
+                    <p>Fetches information, updates inventory.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass-panel">
+        <p>Smarter Stores. Healthier Communities. A More Connected Tomorrow.</p>
+        <div class="logo">
+            <i data-lucide="audio-lines"></i>
+            <span>KAIRO</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
