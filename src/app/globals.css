@@ -1,0 +1,362 @@
+@import "tailwindcss";
+
+/* ── KAIRO Design System ──────────────────────────────────── */
+
+@theme {
+  /* Fonts */
+  --font-inter: "Inter", sans-serif;
+
+  /* Brand Colors */
+  --color-kairo-ink: #0d0d0f;
+  --color-kairo-charcoal: #1a1a1f;
+  --color-kairo-surface: #22222a;
+  --color-kairo-border: #2e2e38;
+  --color-kairo-muted: #4a4a58;
+  --color-kairo-subtle: #8888a0;
+  --color-kairo-offwhite: #f2f0eb;
+  --color-kairo-cream: #e8e4dc;
+
+  /* Signal (Primary Accent — vermilion/orange) */
+  --color-signal: #e8450a;
+  --color-signal-light: #ff5a1f;
+  --color-signal-dim: #7a2408;
+  --color-signal-ghost: #1f0d06;
+
+  /* Pulse (Secondary Accent — cool cyan) */
+  --color-pulse: #00b8cc;
+  --color-pulse-light: #33d4e8;
+  --color-pulse-dim: #006070;
+  --color-pulse-ghost: #001820;
+
+  /* State Colors */
+  --color-success: #22c55e;
+  --color-success-dim: #14532d;
+  --color-warning: #f59e0b;
+  --color-warning-dim: #78350f;
+  --color-error: #ef4444;
+  --color-error-dim: #7f1d1d;
+}
+
+/* ── Base Reset ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-kairo-ink);
+  color: var(--color-kairo-offwhite);
+  font-family: var(--font-inter), sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Typography Scale ─────────────────────────────────────── */
+.text-display {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.text-heading {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.text-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.text-mono {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+  font-size: 0.75rem;
+}
+
+/* ── Component Base Styles ────────────────────────────────── */
+.kairo-surface {
+  background: var(--color-kairo-charcoal);
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 12px;
+}
+
+.kairo-surface-elevated {
+  background: var(--color-kairo-surface);
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 12px;
+}
+
+.kairo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Button Styles ────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--color-signal);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 48px;
+}
+
+.btn-primary:hover {
+  background: var(--color-signal-light);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  color: var(--color-kairo-subtle);
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.btn-ghost:hover {
+  background: var(--color-kairo-surface);
+  color: var(--color-kairo-offwhite);
+  border-color: var(--color-kairo-muted);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-kairo-surface);
+  color: var(--color-kairo-offwhite);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 48px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-kairo-muted);
+  background: var(--color-kairo-charcoal);
+}
+
+/* ── Voice State Specific ─────────────────────────────────── */
+.voice-ring {
+  border-radius: 9999px;
+  border: 1.5px solid currentColor;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-kairo-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-kairo-muted);
+}
+
+/* ── Focus Visible ────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-pulse);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Reduced Motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Grid & Layout Helpers ────────────────────────────────── */
+.kairo-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* ── Separator ────────────────────────────────────────────── */
+.separator {
+  height: 1px;
+  background: var(--color-kairo-border);
+  margin: 0;
+}
+
+/* ── Status dot ───────────────────────────────────────────── */
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+}
+
+.status-dot.offline {
+  background: var(--color-kairo-muted);
+}
+
+.status-dot.warning {
+  background: var(--color-warning);
+}
+
+/* ── Chip ─────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--color-kairo-surface);
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-kairo-subtle);
+}
+
+.chip.active {
+  background: color-mix(in srgb, var(--color-pulse) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-pulse) 30%, transparent);
+  color: var(--color-pulse-light);
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes tool-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-up { animation: fade-up 0.4s ease forwards; }
+.animate-fade-in { animation: fade-in 0.3s ease forwards; }
+.animate-slide-in-right { animation: slide-in-right 0.35s ease forwards; }
+.animate-tool-enter { animation: tool-enter 0.3s ease forwards; }
+
+@keyframes waveform {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+/* ── Activity Steps ───────────────────────────────────────── */
+.activity-step {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0;
+  font-size: 0.8125rem;
+  color: var(--color-kairo-subtle);
+  transition: color 0.2s ease;
+}
+
+.activity-step.complete {
+  color: var(--color-success);
+}
+
+.activity-step.active {
+  color: var(--color-kairo-offwhite);
+}
+
+/* ── Transcript Bubbles ───────────────────────────────────── */
+.transcript-user {
+  align-self: flex-end;
+  background: var(--color-kairo-surface);
+  border: 1px solid var(--color-kairo-border);
+  border-radius: 12px 12px 4px 12px;
+  padding: 0.75rem 1rem;
+  max-width: 80%;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.transcript-kairo {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--color-pulse) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-pulse) 20%, transparent);
+  border-radius: 12px 12px 12px 4px;
+  padding: 0.75rem 1rem;
+  max-width: 85%;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
