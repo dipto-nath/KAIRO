@@ -114,6 +114,25 @@ class ProductNotFoundError(KairoError):
         )
 
 
+class ProductSearchFailedError(KairoError):
+    def __init__(self, reason: str) -> None:
+        super().__init__(
+            code="PRODUCT_SEARCH_FAILED",
+            message=f"Product search failed: {reason}",
+            retryable=True,
+            details={"reason": reason},
+        )
+
+
+class StoreNotFoundError(KairoError):
+    def __init__(self, store_id: str) -> None:
+        super().__init__(
+            code="STORE_NOT_FOUND",
+            message=f"Store {store_id} not found",
+            details={"store_id": store_id},
+        )
+
+
 class InventoryVerificationFailedError(KairoError):
     def __init__(self, product_id: str, store_id: str) -> None:
         super().__init__(
@@ -174,6 +193,26 @@ class TranscriptionError(KairoError):
         super().__init__(
             code="TRANSCRIPTION_ERROR",
             message=f"Transcription failed: {reason}",
+            retryable=True,
+            details={"reason": reason},
+        )
+
+
+class TranscriptionProviderUnavailableError(KairoError):
+    def __init__(self, reason: str) -> None:
+        super().__init__(
+            code="TRANSCRIPTION_PROVIDER_UNAVAILABLE",
+            message=f"Transcription provider unavailable: {reason}",
+            retryable=True,
+            details={"reason": reason},
+        )
+
+
+class VoiceConnectionError(KairoError):
+    def __init__(self, reason: str) -> None:
+        super().__init__(
+            code="VOICE_CONNECTION_ERROR",
+            message=f"Voice connection error: {reason}",
             retryable=True,
             details={"reason": reason},
         )
