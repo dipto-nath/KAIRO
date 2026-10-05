@@ -44,7 +44,7 @@ class AgentEvent(Base):
     session_id: Mapped[str] = mapped_column(
         sa.String(64), sa.ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    type: Mapped[EventType] = mapped_column(sa.Enum(EventType), nullable=False, index=True)
+    type: Mapped[EventType] = mapped_column(sa.Enum(EventType, name="event_type", create_type=False), nullable=False, index=True)
     status: Mapped[str] = mapped_column(sa.String(32), default="completed", nullable=False)
     payload: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     sequence: Mapped[int] = mapped_column(sa.Integer, nullable=False)

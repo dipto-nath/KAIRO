@@ -154,7 +154,7 @@ def upgrade() -> None:
         sa.Column('content', sa.Text, nullable=False),
         sa.Column('sequence', sa.Integer, nullable=False),
         sa.Column('is_streaming', sa.Boolean, default=False, nullable=False),
-        sa.Column('metadata', JSONB, nullable=True),
+        sa.Column('message_metadata', JSONB, nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
     op.create_index('ix_conversation_session_sequence', 'conversation_messages', ['session_id', 'sequence'])

@@ -27,6 +27,11 @@ class MessageRole(str, enum.Enum):
     TOOL = "tool"
 
 
+# Explicit enum values for SQLAlchemy
+SESSION_STATUS_VALUES = [s.value for s in SessionStatus]
+MESSAGE_ROLE_VALUES = [m.value for m in MessageRole]
+
+
 class Session(Base):
     """User session model."""
 
@@ -38,7 +43,7 @@ class Session(Base):
     )
     language: Mapped[str] = mapped_column(sa.String(10), default="en", nullable=False)
     status: Mapped[SessionStatus] = mapped_column(
-        sa.Enum(SessionStatus), default=SessionStatus.ACTIVE, nullable=False, index=True
+        sa.Enum(*SESSION_STATUS_VALUES, name="session_status", create_type=False), default=SessionStatus.ACTIVE, nullable=False, index=True
     )
     current_state: Mapped[str] = mapped_column(sa.String(64), default="IDLE", nullable=False)
     intent: Mapped[Optional[str]] = mapped_column(sa.String(128), nullable=True)
@@ -79,7 +84,7 @@ class ConversationMessage(Base):
     session_id: Mapped[str] = mapped_column(
         sa.String(64), sa.ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    role: Mapped[MessageRole] = mapped_column(sa.Enum(MessageRole), nullable=False)
+    role: Mapped[MessageRole] = mapped_column(sa.Enum(*MESSAGE_ROLE_VALUES, name="message_role", create_type=False), nullable=False)
     content: Mapped[str] = mapped_column(sa.Text, nullable=False)
     sequence: Mapped[int] = mapped_column(sa.Integer, nullable=False)
     is_streaming: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)

@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { KairoShell } from "@/components/shell/KairoShell";
-import { VoiceCore } from "@/components/voice/VoiceCore";
-import { WaveformBars } from "@/components/voice/WaveformBars";
-import { LiveTranscript } from "@/components/conversation/LiveTranscript";
-import { ContextChips } from "@/components/conversation/ContextChips";
-import { AgentActivity } from "@/components/agent/AgentActivity";
 import { ProductGrid } from "@/components/products/ProductCard";
 import {
   ReservationSummary,
@@ -19,6 +15,8 @@ import type { Product } from "@/types";
 import { ClientOnly } from "@/components/ClientOnly";
 
 export default function HomePage() {
+  const router = useRouter();
+
   const {
     session,
     resetSession,
@@ -27,11 +25,8 @@ export default function HomePage() {
     updateReservation,
     runSafetyEscalation,
     runLowStockAlternatives,
-    startListening,
-    stopListening,
     addTranscript,
     startSession,
-  audioStream,
   } = useSession();
 
   const [showReservationFor, setShowReservationFor] = useState<Product | null>(null);
@@ -47,7 +42,7 @@ export default function HomePage() {
   const handleStartConversation = async () => {
     try {
       await startSession();
-      startListening();
+      router.push("/conversation");
     } catch (error) {
       console.error("Failed to start session:", error);
     }
@@ -107,29 +102,17 @@ export default function HomePage() {
   return (
     <ClientOnly>
       <KairoShell showNav>
-      {/* ── Hero / Landing (if idle and no transcript) ─── */}
-      {!isActive && session.transcript.length === 0 && (
-        <LandingHero
-          onStart={handleStartConversation}
-          onSafety={handleSafetyDemo}
-          onLowStock={handleLowStock}
-        />
-      )}
-
-      {/* ── Main Voice Experience ─────────────────────── */}
-      {(isActive || session.transcript.length > 0) && (
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr min(360px, 38vw)",
-            gap: "0",
-            flex: 1,
+            gridTemplateColumns: "1fr 1fr",
+            height: "100vh",
             minHeight: 0,
             overflow: "hidden",
           }}
           className="main-layout"
         >
-          {/* ── Left: Voice + Context ───────────────────── */}
+          {/* ── Left: Welcome + Quick Actions ─────────────────── */}
           <div
             style={{
               display: "flex",
@@ -141,52 +124,59 @@ export default function HomePage() {
               overflowY: "auto",
             }}
           >
-            {/* Voice Core */}
-            <VoiceCore state={session.status} size={180} audioStream={audioStream} />
-            <WaveformBars state={session.status} width={280} height={40} barCount={28} />
+            {/* Welcome Section */}
+            <div style={{ textAlign: "center", maxWidth: 400 }}>
+              <div style={{ fontSize: "2.5rem", fontWeight: 700, color: "var(--color-kairo-ink)", marginBottom: "1rem" }}>
+                Welcome to KAIRO
+              </div>
+              <div style={{ color: "var(--color-kairo-subtle)", fontSize: "1.125rem", lineHeight: 1.6 }}>
+                Your real-time AI voice assistant for retail. 
+                Tap below to start a conversation.
+              </div>
+            </div>
 
-            {/* Voice Controls */}
-            {session.status === 'idle' && (
-              <button 
-                className="btn-primary"
-                onClick={() => startListening()}
-                style={{ padding: "0.5rem 1.5rem", borderRadius: "20px", marginTop: "-0.5rem" }}
-              >
-                Tap to Speak
-              </button>
-            )}
-            {session.status === 'listening' && (
-              <button 
+            {/* Start Conversation Button */}
+            <button 
+              className="btn-primary"
+              onClick={handleStartConversation}
+              style={{ padding: "1rem 2.5rem", borderRadius: "12px", fontSize: "1.125rem", minWidth: 280 }}
+            >
+              Start Conversation
+            </button>
+
+            {/* Quick Options */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", width: "100%", maxWidth: 320 }}>
+              <button
                 className="btn-secondary"
-                onClick={async () => { await stopListening(); }}
-                style={{ padding: "0.5rem 1.5rem", borderRadius: "20px", marginTop: "-0.5rem", background: "var(--color-signal)" }}
+                onClick={() => {
+                  startSession().then(() => router.push("/conversation"));
+                }}
+                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
               >
-                Done Speaking
+                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Find a Product</div>
+                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Search by name, category, or preferences</div>
               </button>
-            )}
-
-            {/* Context Chips */}
-            {session.constraints.length > 0 && (
-              <div style={{ width: "100%", maxWidth: 440 }}>
-                <ContextChips constraints={session.constraints} />
-              </div>
-            )}
-
-            {/* Quick Options (carbonated / non-carbonated) */}
-            {showCarbOptions && (
-              <div style={{ display: "flex", gap: "0.625rem" }}>
-                {["Carbonated", "Non-carbonated"].map((opt) => (
-                  <button
-                    key={opt}
-                    className="btn-secondary"
-                    style={{ fontSize: "0.875rem" }}
-                    onClick={() => handleCarbOption(opt)}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  startSession().then(() => router.push("/conversation"));
+                }}
+                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
+              >
+                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Reserve an Item</div>
+                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Quick 30-minute hold on any product</div>
+              </button>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  startSession().then(() => router.push("/conversation"));
+                }}
+                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
+              >
+                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Check Alternatives</div>
+                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Find substitutes when items are out of stock</div>
+              </button>
+            </div>
 
             {/* Safety Escalation */}
             {hasSafety && session.safetyState && (
@@ -203,104 +193,95 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Reservation UI */}
-            {showReservationFor && !hasReservation && (
-              <div style={{ width: "100%", maxWidth: 480 }}>
-                <ReservationSummary
-                  productName={showReservationFor.name}
-                  productEmoji={showReservationFor.imageEmoji}
-                  unitPrice={showReservationFor.price}
-                  quantity={1}
-                  storeName={MOCK_STORE.name}
-                  onConfirm={handleConfirmReservation}
-                  onCancel={() => setShowReservationFor(null)}
-                />
-              </div>
-            )}
-
-            {/* Reservation Success */}
-            {hasReservation && session.reservation && (
-              <div style={{ width: "100%", maxWidth: 480 }}>
-                <ReservationSuccess
-                  reservation={session.reservation}
-                  onDone={resetSession}
-                  onUpdate={handleUpdateReservation}
-                />
-              </div>
-            )}
-
-            {/* Products */}
-            {hasProducts && !hasReservation && !showReservationFor && !hasSafety && (
-              <div style={{ width: "100%", maxWidth: 480 }}>
-                <div
-                  style={{
-                    fontSize: "0.625rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    color: "var(--color-kairo-muted)",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  {session.products.length === 1 ? "Found" : `Found ${session.products.length} options`}
-                </div>
-                <ProductGrid
-                  products={session.products}
-                  inventoryMap={MOCK_INVENTORY}
-                  onReserve={handleReserve}
-                />
-              </div>
-            )}
-
-            {/* Text input */}
-            {!isSimulating && (
-              <form
-                onSubmit={handleTextSubmit}
+            {/* Demo Scenarios */}
+            <div style={{ marginTop: "auto", paddingTop: "1.5rem", borderTop: "1px solid var(--color-kairo-border)" }}>
+              <div
                 style={{
-                  width: "100%",
-                  maxWidth: 480,
-                  display: "flex",
-                  gap: "0.625rem",
+                  padding: "0.5rem 1rem",
+                  fontSize: "0.6rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "var(--color-kairo-muted)",
                 }}
               >
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Or type your request..."
-                  style={{
-                    flex: 1,
-                    padding: "0.75rem 1rem",
-                    background: "var(--color-kairo-surface)",
-                    border: "1px solid var(--color-kairo-border)",
-                    borderRadius: "8px",
-                    color: "var(--color-kairo-offwhite)",
-                    fontSize: "0.9375rem",
-                    outline: "none",
-                  }}
-                />
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  style={{ padding: "0.75rem 1.25rem" }}
-                  disabled={!inputText.trim()}
-                >
-                  Send
-                </button>
-              </form>
-            )}
+                Try a Scenario
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {DEMO_SCENARIOS.map((scenario) => (
+                  <button
+                    key={scenario.id}
+                    onClick={() => {
+                      setIsSimulating(true);
+                      resetSession();
+                      if (scenario.id === "product_discovery") {
+                        runProductDiscovery("I need a cold drink under ₹70, preferably not too sweet.");
+                      } else if (scenario.id === "low_stock") {
+                        runLowStockAlternatives();
+                      } else if (scenario.id === "reservation") {
+                        runProductDiscovery("Reserve one Strawberry Milk please.");
+                      } else if (scenario.id === "safety_escalation") {
+                        addTranscript("user", "What medicine should I take for chest pain?");
+                        runSafetyEscalation();
+                      }
+                      setIsSimulating(false);
+                    }}
+                    style={{
+                      padding: "0.75rem 1rem",
+                      background: "var(--color-kairo-surface)",
+                      border: "1px solid var(--color-kairo-border)",
+                      borderRadius: "8px",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>
+                      {scenario.label}
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--color-kairo-muted)" }}>
+                      {scenario.description}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            {/* Reset */}
-            <button
-              className="btn-ghost"
-              style={{ fontSize: "0.8125rem" }}
-              onClick={resetSession}
+            {/* Store info footer */}
+            <div
+              style={{
+                marginTop: "2.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.625rem 1rem",
+                background: "var(--color-kairo-surface)",
+                border: "1px solid var(--color-kairo-border)",
+                borderRadius: "8px",
+              }}
             >
-              New conversation
-            </button>
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "var(--color-success)",
+                  boxShadow: "0 0 6px var(--color-success)",
+                  display: "block",
+                }}
+              />
+              <span
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "var(--color-kairo-subtle)",
+                }}
+              >
+                Store #042 · Hatiara Central · Open now
+              </span>
+            </div>
           </div>
 
-          {/* ── Right Panel: Transcript + Activity ──────── */}
+          {/* ── Right: Transcript + Activity ──────── */}
           <div
             style={{
               display: "flex",
@@ -316,17 +297,16 @@ export default function HomePage() {
               }}
             >
               <PanelHeader label="Conversation" />
-              <LiveTranscript entries={session.transcript} />
+              <div style={{ padding: "1rem", color: "var(--color-kairo-muted)", textAlign: "center" }}>
+                Conversation will appear here after starting a conversation.
+              </div>
             </div>
 
             {/* KAIRO Activity */}
             <div style={{ flex: 1, overflowY: "auto" }}>
               <PanelHeader label="KAIRO Activity" />
               <div style={{ padding: "0.875rem 1rem" }}>
-                <AgentActivity
-                  steps={session.activities}
-                  tools={session.toolHistory}
-                />
+                <div style={{ color: "var(--color-kairo-muted)", textAlign: "center" }}>Activity will appear here after starting a conversation.</div>
               </div>
             </div>
 
@@ -347,205 +327,8 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Mobile responsive CSS */}
-      <style>{`
-        @media (max-width: 768px) {
-          .main-layout {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </KairoShell>
+      </KairoShell>
     </ClientOnly>
-  );
-}
-
-// ── Landing Hero ───────────────────────────────────────────
-
-function LandingHero({
-  onStart,
-  onSafety,
-  onLowStock,
-}: {
-  onStart: () => void;
-  onSafety: () => void;
-  onLowStock: () => void;
-}) {
-  return (
-    <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "3rem 1.5rem",
-        gap: "0",
-        textAlign: "center",
-      }}
-    >
-      {/* Central voice core placeholder (idle) */}
-      <VoiceCore state="idle" size={200} />
-
-      <div style={{ marginTop: "2rem", maxWidth: 440 }}>
-        <h1
-          style={{
-            fontSize: "clamp(1.5rem, 4vw, 2.25rem)",
-            fontWeight: 700,
-            letterSpacing: "-0.03em",
-            color: "var(--color-kairo-offwhite)",
-            margin: "0 0 0.75rem",
-            lineHeight: 1.1,
-          }}
-        >
-          Talk naturally.
-          <br />
-          <span style={{ color: "var(--color-signal)" }}>Get things done.</span>
-        </h1>
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "var(--color-kairo-subtle)",
-            margin: "0 0 2rem",
-            lineHeight: 1.6,
-          }}
-        >
-          KAIRO understands what you need and helps get the task done. Speak
-          naturally — I&apos;ll handle the rest.
-        </p>
-
-        <button
-          className="btn-primary"
-          style={{ fontSize: "1rem", padding: "0.875rem 2rem", width: "100%", maxWidth: 280 }}
-          onClick={onStart}
-          aria-label="Start voice conversation with KAIRO"
-        >
-          Start Conversation
-        </button>
-      </div>
-
-      {/* Quick actions */}
-      <div style={{ marginTop: "2.5rem", maxWidth: 480, width: "100%" }}>
-        <div
-          style={{
-            fontSize: "0.625rem",
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "var(--color-kairo-muted)",
-            marginBottom: "0.875rem",
-          }}
-        >
-          Popular requests
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "0.5rem",
-          }}
-        >
-          {[
-            {
-              label: "Find a cold drink",
-              sub: "Under ₹70, low sugar",
-              action: onStart,
-            },
-            {
-              label: "Check alternatives",
-              sub: "Item not available",
-              action: onLowStock,
-            },
-            {
-              label: "Reserve an item",
-              sub: "Quick 30-min hold",
-              action: onStart,
-            },
-            {
-              label: "Safety demo",
-              sub: "Healthcare escalation",
-              action: onSafety,
-            },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={item.action}
-              style={{
-                padding: "0.875rem",
-                background: "var(--color-kairo-surface)",
-                border: "1px solid var(--color-kairo-border)",
-                borderRadius: "10px",
-                textAlign: "left",
-                cursor: "pointer",
-                transition: "border-color 0.15s ease",
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--color-kairo-muted)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.borderColor =
-                  "var(--color-kairo-border)")
-              }
-            >
-              <div
-                style={{
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "var(--color-kairo-offwhite)",
-                  marginBottom: "0.125rem",
-                }}
-              >
-                {item.label}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "var(--color-kairo-muted)",
-                }}
-              >
-                {item.sub}
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Store info footer */}
-      <div
-        style={{
-          marginTop: "2.5rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.625rem 1rem",
-          background: "var(--color-kairo-surface)",
-          border: "1px solid var(--color-kairo-border)",
-          borderRadius: "8px",
-        }}
-      >
-        <span
-          style={{
-            width: 7,
-            height: 7,
-            borderRadius: "50%",
-            background: "var(--color-success)",
-            boxShadow: "0 0 6px var(--color-success)",
-            display: "block",
-          }}
-        />
-        <span
-          style={{
-            fontSize: "0.8125rem",
-            color: "var(--color-kairo-subtle)",
-          }}
-        >
-          Store #042 · Hatiara Central · Open now
-        </span>
-      </div>
-    </div>
   );
 }
 

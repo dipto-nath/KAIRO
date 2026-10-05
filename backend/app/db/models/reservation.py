@@ -30,7 +30,7 @@ class Reservation(Base):
         sa.String(64), sa.ForeignKey("stores.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     status: Mapped[ReservationStatus] = mapped_column(
-        sa.Enum(ReservationStatus), default=ReservationStatus.PENDING_CONFIRMATION, nullable=False
+        sa.Enum(ReservationStatus, name="reservation_status", create_type=False, native_enum=False), default=ReservationStatus.PENDING_CONFIRMATION, nullable=False
     )
     total_amount: Mapped[int] = mapped_column(sa.Integer, nullable=False)  # In paise/cents
     expires_at: Mapped[sa.DateTime] = mapped_column(sa.DateTime(timezone=True), nullable=False, index=True)

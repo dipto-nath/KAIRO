@@ -100,6 +100,7 @@ class AgentOrchestrator:
                     details={"error": str(e)},
                 )
                 return {
+                    "session_id": session_id,
                     "response": "I'm having trouble understanding that right now. Please try again.",
                     "error": "AI_PROVIDER_ERROR",
                 }
@@ -142,6 +143,7 @@ class AgentOrchestrator:
             )
 
             return {
+                "session_id": session_id,
                 "response": gemini_response.get("text", ""),
                 "intent": None,
                 "constraints": {},
@@ -155,6 +157,7 @@ class AgentOrchestrator:
             message="Agent loop limit reached",
         )
         return {
+            "session_id": session_id,
             "response": "I'm having trouble processing that request. Please try rephrasing.",
             "error": "AGENT_LOOP_LIMIT",
         }
@@ -402,7 +405,9 @@ class AgentOrchestrator:
 
         history = []
         for msg in messages:
-            role = msg.role.value
+            role = msg.role
+            if hasattr(role, 'value'):
+                role = role.value
             if role == "assistant":
                 role = "model"
             history.append({"role": role, "content": msg.content})

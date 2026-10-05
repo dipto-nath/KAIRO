@@ -69,7 +69,7 @@ class GeminiService:
                     "properties": {
                         "product_id": {"type": "string", "description": "Product ID"},
                         "store_id": {"type": "string", "description": "Store ID"},
-                        "quantity": {"type": "integer", "description": "Quantity to check", "default": 1},
+                        "quantity": {"type": "integer", "description": "Quantity to check"},
                     },
                     "required": ["product_id", "store_id"],
                 },
@@ -94,7 +94,7 @@ class GeminiService:
                     "properties": {
                         "product_id": {"type": "string", "description": "Reference product ID"},
                         "store_id": {"type": "string", "description": "Store ID"},
-                        "limit": {"type": "integer", "description": "Number of alternatives", "default": 3},
+                        "limit": {"type": "integer", "description": "Number of alternatives"},
                     },
                     "required": ["product_id", "store_id"],
                 },
@@ -180,7 +180,7 @@ class GeminiService:
         tools = [Tool(function_declarations=self._get_tool_declarations())]
 
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-flash-lite-latest",
             system_instruction=system_prompt or self._get_default_system_prompt(),
             tools=tools,
             generation_config={
@@ -267,7 +267,7 @@ RESPONSE STYLE:
                 "gemini_response",
                 session_id=session_id,
                 latency_ms=elapsed_ms,
-                has_function_calls=bool(response.candidates[0].content.parts[0].function_calls)
+                has_function_calls=bool(response.candidates[0].content.parts[0].function_call)
                 if response.candidates
                 else False,
             )
@@ -295,11 +295,21 @@ RESPONSE STYLE:
         for part in candidate.content.parts:
             if part.text:
                 result["text"] += part.text
-            if part.function_call:
+            # Handle function call - check both attribute and dict access
+            if hasattr(part, 'function_call') and part.function_call:
+                fc = part.function_call
                 result["function_calls"].append(
                     {
-                        "name": part.function_call.name,
-                        "args": dict(part.function_call.args),
+                        "name": fc.name,
+                        "args": dict(fc.args) if fc.args else {},
+                    }
+                )
+            elif isinstance(part, dict) and 'function_call' in part:
+                fc = part['function_call']
+                result["function_calls"].append(
+                    {
+                        "name": fc.get('name', ''),
+                        "args": dict(fc.get('args', {})),
                     }
                 )
 

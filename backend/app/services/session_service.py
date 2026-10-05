@@ -47,7 +47,7 @@ class SessionService:
         return {
             "session_id": session.id,
             "store_id": session.store_id,
-            "status": session.status.value,
+            "status": session.status,
             "language": session.language,
             "created_at": session.created_at,
         }
@@ -62,7 +62,7 @@ class SessionService:
             "id": session.id,
             "store_id": session.store_id,
             "language": session.language,
-            "status": session.status.value,
+            "status": session.status,
             "current_state": session.current_state,
             "intent": session.intent,
             "constraints": session.constraints,
@@ -102,7 +102,7 @@ class SessionService:
                 "id": session.id,
                 "store_id": session.store_id,
                 "language": session.language,
-                "status": session.status.value,
+                "status": session.status,
                 "current_state": session.current_state,
                 "intent": session.intent,
                 "constraints": session.constraints,
@@ -238,4 +238,4 @@ class SessionService:
             return None
         
         logger.info("session_ended", session_id=session_id)
-        return {"session_id": session.id, "status": session.status.value}
+        return {"session_id": session.id, "status": session.status}
