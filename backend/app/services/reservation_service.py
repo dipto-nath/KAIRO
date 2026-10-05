@@ -1,7 +1,7 @@
 """Reservation Service - Business logic for reservation operations."""
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,7 +38,7 @@ class ReservationService:
         session_id: str,
         store_id: str,
         items: list[dict[str, Any]],
-        idempotency_key: str | None = None,
+        idempotency_key: Optional[str] = None,
     ) -> dict[str, Any]:
         """Prepare a reservation preview (requires confirmation)."""
         # Check idempotency
@@ -115,7 +115,7 @@ class ReservationService:
         return await self._format_reservation(reservation, store_name)
 
     async def confirm_reservation(
-        self, reservation_id: str, idempotency_key: str | None = None
+        self, reservation_id: str, idempotency_key: Optional[str] = None
     ) -> dict[str, Any]:
         """Confirm a pending reservation."""
         # Check idempotency
@@ -212,14 +212,14 @@ class ReservationService:
         logger.info("reservation_cancelled", reservation_id=reservation_id)
         return await self._format_reservation(cancelled)
 
-    async def get_reservation(self, reservation_id: str) -> dict[str, Any] | None:
+    async def get_reservation(self, reservation_id: str) -> Optional[Dict[str, Any]]:
         """Get reservation by ID."""
         reservation = await self.repo.get_by_id(reservation_id)
         if not reservation:
             return None
         return await self._format_reservation(reservation)
 
-    async def get_active_reservation(self, session_id: str) -> dict[str, Any] | None:
+    async def get_active_reservation(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get active reservation for session."""
         reservation = await self.repo.get_active_by_session(session_id)
         if not reservation:
@@ -227,7 +227,7 @@ class ReservationService:
         return await self._format_reservation(reservation)
 
     async def _format_reservation(
-        self, reservation: Any, store_name: str | None = None
+        self, reservation: Any, store_name: Optional[str] = None
     ) -> dict[str, Any]:
         """Format reservation for API response."""
         if store_name is None:

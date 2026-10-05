@@ -60,7 +60,7 @@ class SessionRepository:
         await self.session.flush()
         return session
 
-    async def update_intent(self, session_id: str, intent: str | None) -> Optional[Session]:
+    async def update_intent(self, session_id: str, intent: Optional[str]) -> Optional[Session]:
         """Update session intent."""
         session = await self.get_by_id(session_id)
         if not session:
@@ -81,7 +81,7 @@ class SessionRepository:
         return session
 
     async def update_safety_state(
-        self, session_id: str, safety_state: dict | None
+        self, session_id: str, safety_state: Optional[dict]
     ) -> Optional[Session]:
         """Update session safety state."""
         session = await self.get_by_id(session_id)
@@ -92,7 +92,7 @@ class SessionRepository:
         return session
 
     async def set_active_reservation(
-        self, session_id: str, reservation_id: str | None
+        self, session_id: str, reservation_id: Optional[str]
     ) -> Optional[Session]:
         """Set active reservation for session."""
         session = await self.get_by_id(session_id)
@@ -119,7 +119,7 @@ class SessionRepository:
         content: str,
         sequence: int,
         is_streaming: bool = False,
-        metadata: dict | None = None,
+        metadata: Optional[dict] = None,
     ) -> ConversationMessage:
         """Add a conversation message."""
         message = ConversationMessage(

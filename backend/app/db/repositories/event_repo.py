@@ -22,7 +22,7 @@ class EventRepository:
         payload: dict,
         sequence: int,
         status: str = "completed",
-        event_id: str | None = None,
+        event_id: Optional[str] = None,
     ) -> AgentEvent:
         """Create a new agent event."""
         import secrets
@@ -71,7 +71,7 @@ class ToolExecutionRepository:
         session_id: str,
         tool_name: str,
         input_data: dict,
-        execution_id: str | None = None,
+        execution_id: Optional[str] = None,
     ) -> ToolExecution:
         """Create a new tool execution record."""
         import secrets
@@ -87,7 +87,7 @@ class ToolExecutionRepository:
         return execution
 
     async def complete(
-        self, execution_id: str, output: dict | None = None, error: str | None = None
+        self, execution_id: str, output: Optional[dict] = None, error: Optional[str] = None
     ) -> Optional[ToolExecution]:
         """Complete a tool execution."""
         result = await self.session.execute(

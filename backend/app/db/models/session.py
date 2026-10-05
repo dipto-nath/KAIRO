@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.database import Base
+from typing import Optional
 
 
 class SessionStatus(str, enum.Enum):
@@ -40,10 +41,10 @@ class Session(Base):
         sa.Enum(SessionStatus), default=SessionStatus.ACTIVE, nullable=False, index=True
     )
     current_state: Mapped[str] = mapped_column(sa.String(64), default="IDLE", nullable=False)
-    intent: Mapped[str | None] = mapped_column(sa.String(128), nullable=True)
+    intent: Mapped[Optional[str]] = mapped_column(sa.String(128), nullable=True)
     constraints: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    safety_state: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    active_reservation_id: Mapped[str | None] = mapped_column(sa.String(64), nullable=True)
+    safety_state: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    active_reservation_id: Mapped[Optional[str]] = mapped_column(sa.String(64), nullable=True)
     created_at: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
@@ -53,7 +54,7 @@ class Session(Base):
         onupdate=sa.func.now(),
         nullable=False,
     )
-    ended_at: Mapped[sa.DateTime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    ended_at: Mapped[Optional[sa.DateTime]] = mapped_column(sa.DateTime(timezone=True), nullable=True)
 
     # Relationships
     store: Mapped["Store"] = relationship(back_populates="sessions")
@@ -82,7 +83,7 @@ class ConversationMessage(Base):
     content: Mapped[str] = mapped_column(sa.Text, nullable=False)
     sequence: Mapped[int] = mapped_column(sa.Integer, nullable=False)
     is_streaming: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
-    metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    message_metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )

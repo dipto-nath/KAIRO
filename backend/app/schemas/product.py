@@ -1,21 +1,21 @@
 """Product API Schemas."""
 
-from typing import Any
+from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
 
 class ProductSearchRequest(BaseModel):
     """Product search request."""
 
-    query: str | None = None
-    category: str | None = None
-    subcategory: str | None = None
-    max_price: int | None = None
-    min_price: int | None = None
-    temperature: str | None = None
-    sugar_level: str | None = None
-    carbonated: bool | None = None
-    store_id: str | None = None
+    query: Optional[str] = None
+    category: Optional[str] = None
+    subcategory: Optional[str] = None
+    max_price: Optional[int] = None
+    min_price: Optional[int] = None
+    temperature: Optional[str] = None
+    sugar_level: Optional[str] = None
+    carbonated: Optional[bool] = None
+    store_id: Optional[str] = None
     limit: int = 20
     offset: int = 0
 
@@ -26,7 +26,7 @@ class ProductResponse(BaseModel):
     id: str
     sku: str
     name: str
-    name_hindi: str | None = None
+    name_hindi: Optional[str] = None
     description: str
     price: int
     currency: str
@@ -35,11 +35,11 @@ class ProductResponse(BaseModel):
     temperature: str
     sugar_level: str
     carbonated: bool
-    brand: str | None = None
+    brand: Optional[str] = None
     aisle: str
     section: str
-    image_url: str | None = None
-    image_emoji: str | None = None
+    image_url: Optional[str] = None
+    image_emoji: Optional[str] = None
     attributes: list[dict[str, str]] = []
 
 
@@ -47,9 +47,9 @@ class ProductDetailResponse(BaseModel):
     """Detailed product response with inventory."""
 
     product: ProductResponse
-    inventory: dict[str, Any] | None = None
-    location: dict[str, str] | None = None
-    match_score: float | None = None
+    inventory: Optional[Dict[str, Any]] = None
+    location: Optional[Dict[str, str]] = None
+    match_score: Optional[float] = None
     match_reasons: list[str] = []
 
 

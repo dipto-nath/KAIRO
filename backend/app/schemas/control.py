@@ -1,7 +1,7 @@
 """Control Console API Schemas."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
 
@@ -12,11 +12,11 @@ class ControlToolExecution(BaseModel):
     tool_name: str
     status: str
     input: dict[str, Any]
-    output: dict[str, Any] | None
-    error: str | None
-    duration_ms: int | None
+    output: Optional[Dict[str, Any]]
+    error: Optional[str]
+    duration_ms: Optional[int]
     started_at: datetime
-    completed_at: datetime | None
+    completed_at: Optional[datetime]
 
 
 class ControlSessionResponse(BaseModel):
@@ -24,12 +24,12 @@ class ControlSessionResponse(BaseModel):
 
     session: dict[str, Any]
     agent_state: dict[str, Any]
-    intent: dict[str, Any] | None
+    intent: Optional[Dict[str, Any]]
     constraints: dict[str, Any]
     tool_executions: list[ControlToolExecution]
     events: list[dict[str, Any]]
-    reservation: dict[str, Any] | None
-    safety: dict[str, Any] | None
+    reservation: Optional[Dict[str, Any]]
+    safety: Optional[Dict[str, Any]]
     performance: dict[str, Any]
 
 

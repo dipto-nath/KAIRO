@@ -1,6 +1,6 @@
 """Store Service - Business logic for store operations."""
 
-from typing import Any
+from typing import Any, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -70,7 +70,7 @@ class StoreService:
             "aisles": aisles,
         }
 
-    async def get_active_store(self) -> dict[str, Any] | None:
+    async def get_active_store(self) -> Optional[Dict[str, Any]]:
         """Get the default active store."""
         store = await self.repo.get_active_store()
         if not store:

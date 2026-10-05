@@ -1,6 +1,6 @@
 """Safety Service - Handles safety escalation and content filtering."""
 
-from typing import Any
+from typing import Any, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +27,7 @@ class SafetyService:
         self.session = session
         self.repo = SessionRepository(session)
 
-    def check_safety(self, text: str) -> dict[str, Any] | None:
+    def check_safety(self, text: str) -> Optional[Dict[str, Any]]:
         """Check if text contains safety-sensitive content."""
         text_lower = text.lower()
         
@@ -82,7 +82,7 @@ class SafetyService:
 
         return safety_state
 
-    async def get_safety_state(self, session_id: str) -> dict[str, Any] | None:
+    async def get_safety_state(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get current safety state for a session."""
         session = await self.repo.get_by_id(session_id)
         if not session:

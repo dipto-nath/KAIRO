@@ -16,7 +16,7 @@ export function KairoShell({ children, showNav = false, rightSlot }: KairoShellP
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        background: "var(--color-kairo-ink)",
+        background: "var(--color-kairo-cream)",
       }}
     >
       <header

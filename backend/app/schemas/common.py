@@ -1,6 +1,6 @@
 """Common API Schemas."""
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -11,9 +11,9 @@ class APIResponse(BaseModel, Generic[T]):
     """Standard API response wrapper."""
 
     success: bool
-    data: T | None = None
-    error: "ErrorResponse | None" = None
-    request_id: str | None = None
+    data: Optional[T] = None
+    error: "Optional[ErrorResponse]" = None
+    request_id: Optional[str] = None
 
 
 class ErrorResponse(BaseModel):
@@ -22,8 +22,8 @@ class ErrorResponse(BaseModel):
     code: str
     message: str
     retryable: bool = False
-    session_id: str | None = None
-    details: dict[str, Any] | None = None
+    session_id: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
 
 
 class HealthResponse(BaseModel):

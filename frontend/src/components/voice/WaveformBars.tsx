@@ -51,14 +51,14 @@ export function WaveformBars({
       // Resolve CSS var to an actual color string we can use in canvas
       // Use a lookup since CSS vars are resolved per-element
       const map: Record<VoiceState, string> = {
-        idle: "#4a4a58",
-        listening: "#00b8cc",
-        thinking: "#e8450a",
-        tool_running: "#f59e0b",
-        speaking: "#33d4e8",
-        action: "#e8450a",
-        success: "#22c55e",
-        error: "#ef4444",
+        idle: "#8b7d6b",          // var(--color-kairo-muted)
+        listening: "#00b8cc",      // var(--color-pulse-light)
+        thinking: "#e8450a",       // var(--color-signal)
+        tool_running: "#e8a000",   // var(--color-warning)
+        speaking: "#00b8cc",       // var(--color-pulse-light)
+        action: "#e8450a",         // var(--color-signal)
+        success: "#1e8a3a",        // var(--color-success)
+        error: "#dc2626",          // var(--color-error)
       };
       return map[state];
     }

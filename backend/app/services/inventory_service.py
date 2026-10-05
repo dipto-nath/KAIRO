@@ -1,6 +1,6 @@
 """Inventory Service - Business logic for inventory operations."""
 
-from typing import Any
+from typing import Any, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -125,7 +125,7 @@ class InventoryService:
 
     async def get_product_location(
         self, store_id: str, product_id: str
-    ) -> dict[str, Any] | None:
+    ) -> Optional[Dict[str, Any]]:
         """Get product location in store."""
         product = await self.product_repo.get_by_id(product_id)
         if not product:

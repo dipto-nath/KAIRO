@@ -36,8 +36,8 @@ class VoiceSession:
     async def start(
         self,
         on_transcript: Callable[[dict[str, Any]], None],
-        on_speech_start: Callable[[], None] | None = None,
-        on_speech_end: Callable[[], None] | None = None,
+        on_speech_start: Optional[Callable[[], None]] = None,
+        on_speech_end: Optional[Callable[[], None]] = None,
     ) -> None:
         """Start the voice session."""
         self.on_transcript_callback = on_transcript

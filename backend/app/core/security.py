@@ -2,7 +2,7 @@
 
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Dict, Optional
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -15,7 +15,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 
-def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
+def create_access_token(data: dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token."""
     to_encode = data.copy()
     if expires_delta:
@@ -27,7 +27,7 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> dict[str, Any] | None:
+def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
     """Decode and validate a JWT access token."""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])

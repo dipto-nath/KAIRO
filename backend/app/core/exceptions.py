@@ -1,6 +1,6 @@
 """KAIRO Exception Definitions and Error Handling."""
 
-from typing import Any
+from typing import Any, Dict, Optional
 from fastapi import HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -64,8 +64,8 @@ class ErrorDetail(BaseModel):
     code: str
     message: str
     retryable: bool = False
-    session_id: str | None = None
-    details: dict[str, Any] | None = None
+    session_id: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
 
 
 class KairoError(Exception):
@@ -76,8 +76,8 @@ class KairoError(Exception):
         code: str,
         message: str,
         retryable: bool = False,
-        session_id: str | None = None,
-        details: dict[str, Any] | None = None,
+        session_id: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.code = code
         self.message = message
@@ -168,7 +168,7 @@ class ReservationNotFoundError(KairoError):
 
 
 class ReservationFailedError(KairoError):
-    def ___init__(self, reason: str, session_id: str | None = None) -> None:
+    def ___init__(self, reason: str, session_id: Optional[str] = None) -> None:
         super().__init__(
             code="RESERVATION_FAILED",
             message=f"Reservation failed: {reason}",

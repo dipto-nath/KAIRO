@@ -22,8 +22,10 @@ class Base(DeclarativeBase):
     pass
 
 
-engine: AsyncEngine | None = None
-async_session_maker: async_sessionmaker[AsyncSession] | None = None
+from typing import Optional
+
+engine: Optional[AsyncEngine] = None
+async_session_maker: Optional[async_sessionmaker[AsyncSession]] = None
 
 
 def init_db() -> None:

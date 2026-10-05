@@ -158,7 +158,7 @@ export default function HomePage() {
             {session.status === 'listening' && (
               <button 
                 className="btn-secondary"
-                onClick={() => stopListening()}
+                onClick={async () => { await stopListening(); }}
                 style={{ padding: "0.5rem 1.5rem", borderRadius: "20px", marginTop: "-0.5rem", background: "var(--color-signal)" }}
               >
                 Done Speaking
@@ -474,7 +474,7 @@ function LandingHero({
               onClick={item.action}
               style={{
                 padding: "0.875rem",
-                background: "var(--color-kairo-charcoal)",
+                background: "var(--color-kairo-surface)",
                 border: "1px solid var(--color-kairo-border)",
                 borderRadius: "10px",
                 textAlign: "left",
@@ -521,7 +521,7 @@ function LandingHero({
           alignItems: "center",
           gap: "0.5rem",
           padding: "0.625rem 1rem",
-          background: "var(--color-kairo-charcoal)",
+          background: "var(--color-kairo-surface)",
           border: "1px solid var(--color-kairo-border)",
           borderRadius: "8px",
         }}

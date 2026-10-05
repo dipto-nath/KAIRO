@@ -1,6 +1,6 @@
 """Product Service - Business logic for product operations."""
 
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,15 +20,15 @@ class ProductService:
 
     async def search_products(
         self,
-        query: str | None = None,
-        category: str | None = None,
-        subcategory: str | None = None,
-        max_price: int | None = None,
-        min_price: int | None = None,
-        temperature: str | None = None,
-        sugar_level: str | None = None,
-        carbonated: bool | None = None,
-        store_id: str | None = None,
+        query: Optional[str] = None,
+        category: Optional[str] = None,
+        subcategory: Optional[str] = None,
+        max_price: Optional[int] = None,
+        min_price: Optional[int] = None,
+        temperature: Optional[str] = None,
+        sugar_level: Optional[str] = None,
+        carbonated: Optional[bool] = None,
+        store_id: Optional[str] = None,
         limit: int = 20,
         offset: int = 0,
     ) -> list[dict[str, Any]]:

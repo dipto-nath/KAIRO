@@ -1,7 +1,7 @@
 """Session API Schemas."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
 from uuid import UUID
 
@@ -9,7 +9,7 @@ from uuid import UUID
 class SessionCreate(BaseModel):
     """Request to create a new session."""
 
-    store_id: str | None = None
+    store_id: Optional[str] = None
     language: str = Field(default="en", pattern="^(en|hi|bn)$")
 
 
@@ -31,10 +31,10 @@ class SessionStateResponse(BaseModel):
     language: str
     status: str
     current_state: str
-    intent: str | None
+    intent: Optional[str]
     constraints: dict[str, Any]
-    safety_state: dict[str, Any] | None
-    active_reservation_id: str | None
+    safety_state: Optional[Dict[str, Any]]
+    active_reservation_id: Optional[str]
     created_at: datetime
     updated_at: datetime
-    ended_at: datetime | None
+    ended_at: Optional[datetime]

@@ -6,34 +6,34 @@
   /* Fonts */
   --font-inter: "Inter", sans-serif;
 
-  /* Brand Colors */
-  --color-kairo-ink: #0d0d0f;
-  --color-kairo-charcoal: #1a1a1f;
-  --color-kairo-surface: #22222a;
-  --color-kairo-border: #2e2e38;
-  --color-kairo-muted: #4a4a58;
-  --color-kairo-subtle: #8888a0;
-  --color-kairo-offwhite: #f2f0eb;
-  --color-kairo-cream: #e8e4dc;
+  /* Brand Colors - Light Theme with Cream Background */
+  --color-kairo-ink: #1a1a2e;
+  --color-kairo-charcoal: #2d2d44;
+  --color-kairo-surface: #f5f0e8;
+  --color-kairo-border: #d4c8b8;
+  --color-kairo-muted: #8b7d6b;
+  --color-kairo-subtle: #a89c8a;
+  --color-kairo-offwhite: #2d2d44;
+  --color-kairo-cream: #fdf8f0;
 
   /* Signal (Primary Accent — vermilion/orange) */
   --color-signal: #e8450a;
   --color-signal-light: #ff5a1f;
   --color-signal-dim: #7a2408;
-  --color-signal-ghost: #1f0d06;
+  --color-signal-ghost: #fff0eb;
 
   /* Pulse (Secondary Accent — cool cyan) */
-  --color-pulse: #00b8cc;
-  --color-pulse-light: #33d4e8;
+  --color-pulse: #008b9a;
+  --color-pulse-light: #00b8cc;
   --color-pulse-dim: #006070;
-  --color-pulse-ghost: #001820;
+  --color-pulse-ghost: #e8f8f9;
 
   /* State Colors */
-  --color-success: #22c55e;
+  --color-success: #1e8a3a;
   --color-success-dim: #14532d;
-  --color-warning: #f59e0b;
+  --color-warning: #e8a000;
   --color-warning-dim: #78350f;
-  --color-error: #ef4444;
+  --color-error: #dc2626;
   --color-error-dim: #7f1d1d;
 }
 
@@ -50,8 +50,8 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--color-kairo-ink);
-  color: var(--color-kairo-offwhite);
+  background-color: var(--color-kairo-cream);
+  color: var(--color-kairo-ink);
   font-family: var(--font-inter), sans-serif;
   line-height: 1.5;
   min-height: 100vh;

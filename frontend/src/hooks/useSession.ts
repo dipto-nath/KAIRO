@@ -508,29 +508,60 @@ export function useSession() {
 
   const stopListening = useCallback(() => {
     // Stop MediaRecorder first to flush any remaining data
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current = null;
-    }
-    
-    // Stop audio tracks
-    if (audioStreamRef.current) {
-      audioStreamRef.current.getTracks().forEach(track => track.stop());
-      audioStreamRef.current = null;
-    }
-    setAudioStream(null);
-    
-    // Close WebSocket connection gracefully
-    if (voiceWsRef.current) {
-      // Send stop message to server before closing
-      if (voiceWsRef.current.readyState === WebSocket.OPEN) {
-        voiceWsRef.current.send(JSON.stringify({ type: "stop" }));
+    return new Promise<void>((resolve) => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        // Wait for the final ondataavailable event before cleaning up
+        const handleDataAvailable = async () => {
+          mediaRecorderRef.current!.removeEventListener("dataavailable", handleDataAvailable);
+          
+          // Give a small delay for the last chunk to be sent via WebSocket
+          await new Promise(r => setTimeout(r, 100));
+          
+          // Stop audio tracks
+          if (audioStreamRef.current) {
+            audioStreamRef.current.getTracks().forEach(track => track.stop());
+            audioStreamRef.current = null;
+          }
+          setAudioStream(null);
+          
+          // Close WebSocket connection gracefully
+          if (voiceWsRef.current) {
+            // Send stop message to server before closing
+            if (voiceWsRef.current.readyState === WebSocket.OPEN) {
+              voiceWsRef.current.send(JSON.stringify({ type: "stop" }));
+            }
+            voiceWsRef.current.close();
+            voiceWsRef.current = null;
+          }
+          
+          mediaRecorderRef.current = null;
+          setVoiceState("idle", "IDLE");
+          resolve();
+        };
+        
+        mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable);
+        mediaRecorderRef.current.stop();
+      } else {
+        // No active recorder, just clean up
+        if (audioStreamRef.current) {
+          audioStreamRef.current.getTracks().forEach(track => track.stop());
+          audioStreamRef.current = null;
+        }
+        setAudioStream(null);
+        
+        if (voiceWsRef.current) {
+          if (voiceWsRef.current.readyState === WebSocket.OPEN) {
+            voiceWsRef.current.send(JSON.stringify({ type: "stop" }));
+          }
+          voiceWsRef.current.close();
+          voiceWsRef.current = null;
+        }
+        
+        mediaRecorderRef.current = null;
+        setVoiceState("idle", "IDLE");
+        resolve();
       }
-      voiceWsRef.current.close();
-      voiceWsRef.current = null;
-    }
-    
-    setVoiceState("idle", "IDLE");
+    });
   }, [setVoiceState]);
 
   // Cleanup on unmount
@@ -567,9 +598,26 @@ export function useSession() {
     runProductDiscovery,
     runReservation,
     updateReservation,
-    runSafetyEscalation: () => {},
+    runSafetyEscalation: async () => {
+      let currentSessionId = backendSessionId;
+      if (!currentSessionId) {
+        currentSessionId = await startSession();
+      }
+      if (!currentSessionId) return;
+
+      setVoiceState("thinking", "UNDERSTANDING");
+      
+      try {
+        await api.sendMessage({
+          session_id: currentSessionId,
+          message: "What medicine should I take for chest pain?",
+        });
+      } catch (e) {
+        console.error("Failed to send message:", e);
+      }
+    },
     runLowStockAlternatives,
     // Expose audio stream for visualization components
-    audioStream: audioStreamRef.current,
+    audioStream,
   };
 }

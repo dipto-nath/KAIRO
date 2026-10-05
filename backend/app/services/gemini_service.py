@@ -2,7 +2,7 @@
 
 import json
 import time
-from typing import Any
+from typing import Any, Optional
 
 import google.generativeai as genai
 from google.generativeai.types import FunctionDeclaration, Tool
@@ -173,7 +173,7 @@ class GeminiService:
             ),
         ]
 
-    def get_model(self, system_prompt: str | None = None) -> genai.GenerativeModel:
+    def get_model(self, system_prompt: Optional[str] = None) -> genai.GenerativeModel:
         """Get configured Gemini model with tools."""
         self.configure()
 
@@ -240,7 +240,7 @@ RESPONSE STYLE:
         self,
         session_id: str,
         messages: list[dict[str, Any]],
-        system_prompt: str | None = None,
+        system_prompt: Optional[str] = None,
     ) -> dict[str, Any]:
         """Generate a response from Gemini with tool calling."""
         model = self.get_model(system_prompt)

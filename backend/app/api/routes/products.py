@@ -8,6 +8,7 @@ from app.services.product_service import ProductService
 from app.schemas.product import ProductSearchRequest, ProductSearchResponse, ProductResponse, ProductDetailResponse
 from app.schemas.common import APIResponse
 from app.core.logging import get_logger
+from typing import Optional
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -15,15 +16,15 @@ logger = get_logger(__name__)
 
 @router.get("/products/search", response_model=APIResponse[ProductSearchResponse])
 async def search_products(
-    query: str | None = Query(None),
-    category: str | None = Query(None),
-    subcategory: str | None = Query(None),
-    max_price: int | None = Query(None),
-    min_price: int | None = Query(None),
-    temperature: str | None = Query(None),
-    sugar_level: str | None = Query(None),
-    carbonated: bool | None = Query(None),
-    store_id: str | None = Query(None),
+    query: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    subcategory: Optional[str] = Query(None),
+    max_price: Optional[int] = Query(None),
+    min_price: Optional[int] = Query(None),
+    temperature: Optional[str] = Query(None),
+    sugar_level: Optional[str] = Query(None),
+    carbonated: Optional[bool] = Query(None),
+    store_id: Optional[str] = Query(None),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     session: AsyncSession = Depends(get_session_dependency),
@@ -66,7 +67,7 @@ async def search_products(
 @router.get("/products/{product_id}", response_model=APIResponse[ProductDetailResponse])
 async def get_product(
     product_id: str,
-    store_id: str | None = Query(None),
+    store_id: Optional[str] = Query(None),
     session: AsyncSession = Depends(get_session_dependency),
 ):
     """Get product details with inventory and location."""

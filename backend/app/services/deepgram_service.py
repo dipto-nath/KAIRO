@@ -6,7 +6,8 @@ import time
 from typing import Any, AsyncGenerator, Callable, Optional
 
 import httpx
-from deepgram import DeepgramClient, LiveTranscriptionEvents, LiveOptions
+from deepgram import Deepgram
+from deepgram.transcription import LiveOptions, LiveTranscriptionEvent, LiveTranscription
 
 from app.core.config import settings
 from app.core.exceptions import TranscriptionError, TranscriptionProviderUnavailableError
@@ -19,7 +20,7 @@ class DeepgramService:
     """Service for Deepgram streaming speech-to-text."""
 
     def __init__(self) -> None:
-        self.client: Optional[DeepgramClient] = None
+        self.client: Optional[Deepgram] = None
         self._configured = False
 
     def configure(self) -> None:
@@ -27,7 +28,7 @@ class DeepgramService:
         if self._configured:
             return
 
-        self.client = DeepgramClient(settings.DEEPGRAM_API_KEY)
+        self.client = Deepgram(settings.DEEPGRAM_API_KEY)
         self._configured = True
         logger.info("deepgram_configured")
 
@@ -63,10 +64,10 @@ class DeepgramService:
         )
 
         # Create live connection
-        connection = self.client.listen.asyncwebsocket.v("1")
+        connection: LiveTranscription = self.client.transcription.live(options)
         
         # Start the connection
-        await connection.start(options)
+        await connection.start()
         
         return connection
 
@@ -106,15 +107,15 @@ class DeepgramService:
                 channels=1,
             )
 
-            connection = self.client.listen.asyncwebsocket.v("1")
+            connection = self.client.transcription.live(options)
             
             # Set up event handlers
-            connection.on(LiveTranscriptionEvents.Transcript, on_transcript)
-            connection.on(LiveTranscriptionEvents.Error, lambda e: on_error(Exception(str(e))))
-            connection.on(LiveTranscriptionEvents.Close, lambda _: logger.info("deepgram_connection_closed"))
+            connection.register_handler(LiveTranscriptionEvent.TRANSCRIPT_RECEIVED, on_transcript)
+            connection.register_handler(LiveTranscriptionEvent.ERROR, lambda e: on_error(Exception(str(e))))
+            connection.register_handler(LiveTranscriptionEvent.CLOSE, lambda _: logger.info("deepgram_connection_closed"))
 
             # Start connection
-            await connection.start(options)
+            await connection.start()
             logger.info("deepgram_stream_started", language=language)
 
             # Send audio chunks
@@ -165,8 +166,8 @@ class DeepgramService:
                 "punctuate": True,
             }
 
-            response = await self.client.listen.asyncrest.v("1").transcribe_file(source, options)
-            return response.to_dict()
+            response = await self.client.transcription.prerecorded(source, options)
+            return response
 
         except Exception as e:
             logger.error("deepgram_prerecorded_error", error=str(e))

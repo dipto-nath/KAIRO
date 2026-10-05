@@ -1,7 +1,7 @@
 """Reservation API Schemas."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 from pydantic import BaseModel
 
 
@@ -19,7 +19,7 @@ class ReservationPrepareRequest(BaseModel):
     session_id: str
     store_id: str
     items: list[ReservationItemRequest]
-    idempotency_key: str | None = None
+    idempotency_key: Optional[str] = None
 
 
 class ReservationPrepareResponse(BaseModel):
@@ -40,7 +40,7 @@ class ReservationConfirmRequest(BaseModel):
     """Reservation confirmation request."""
 
     reservation_id: str
-    idempotency_key: str | None = None
+    idempotency_key: Optional[str] = None
 
 
 class ReservationConfirmResponse(BaseModel):
@@ -76,4 +76,4 @@ class ReservationResponse(BaseModel):
     items: list[dict[str, Any]]
     created_at: datetime
     expires_at: datetime
-    confirmed_at: datetime | None = None
+    confirmed_at: Optional[datetime] = None

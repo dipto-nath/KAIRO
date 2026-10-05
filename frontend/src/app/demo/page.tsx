@@ -473,7 +473,7 @@ function WhyKairo() {
             key={f.label}
             style={{
               padding: "0.875rem",
-              background: "var(--color-kairo-charcoal)",
+              background: "var(--color-kairo-surface)",
               border: "1px solid var(--color-kairo-border)",
               borderRadius: "10px",
             }}
@@ -556,7 +556,7 @@ function WhyKairo() {
                 padding: "0.875rem",
                 background: v.active
                   ? "color-mix(in srgb, var(--color-signal) 8%, transparent)"
-                  : "var(--color-kairo-charcoal)",
+                  : "var(--color-kairo-surface)",
                 border: `1px solid ${v.active ? "color-mix(in srgb, var(--color-signal) 25%, transparent)" : "var(--color-kairo-border)"}`,
                 borderRadius: "10px",
               }}

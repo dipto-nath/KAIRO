@@ -1,7 +1,7 @@
 """Agent API Schemas."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
 
@@ -18,12 +18,12 @@ class AgentMessageResponse(BaseModel):
 
     session_id: str
     response: str
-    intent: str | None = None
+    intent: Optional[str] = None
     constraints: dict[str, Any] = {}
     requires_confirmation: bool = False
-    confirmation_data: dict[str, Any] | None = None
+    confirmation_data: Optional[Dict[str, Any]] = None
     safety_escalation: bool = False
-    safety_reason: str | None = None
+    safety_reason: Optional[str] = None
 
 
 class AgentStateResponse(BaseModel):
@@ -31,8 +31,8 @@ class AgentStateResponse(BaseModel):
 
     session_id: str
     state: str
-    intent: str | None
+    intent: Optional[str]
     constraints: dict[str, Any]
-    current_tool: str | None
+    current_tool: Optional[str]
     tool_history: list[dict[str, Any]]
     last_updated: datetime

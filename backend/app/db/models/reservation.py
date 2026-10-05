@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
+from typing import Optional
 
 
 class ReservationStatus(str, enum.Enum):
@@ -42,9 +43,9 @@ class Reservation(Base):
         onupdate=sa.func.now(),
         nullable=False,
     )
-    confirmed_at: Mapped[sa.DateTime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
-    cancelled_at: Mapped[sa.DateTime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
-    idempotency_key: Mapped[str | None] = mapped_column(sa.String(64), unique=True, nullable=True, index=True)
+    confirmed_at: Mapped[Optional[sa.DateTime]] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    cancelled_at: Mapped[Optional[sa.DateTime]] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    idempotency_key: Mapped[Optional[str]] = mapped_column(sa.String(64), unique=True, nullable=True, index=True)
 
     # Relationships
     store: Mapped["Store"] = relationship(back_populates="reservations")

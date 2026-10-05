@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.database import Base
+from typing import Optional
 
 
 class EventType(str, enum.Enum):
@@ -76,13 +77,13 @@ class ToolExecution(Base):
     tool_name: Mapped[str] = mapped_column(sa.String(64), nullable=False, index=True)
     status: Mapped[str] = mapped_column(sa.String(32), nullable=False)  # running, success, error
     input: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    output: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    error: Mapped[str | None] = mapped_column(sa.Text, nullable=True)
-    duration_ms: Mapped[int | None] = mapped_column(sa.Integer, nullable=True)
+    output: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    error: Mapped[Optional[str]] = mapped_column(sa.Text, nullable=True)
+    duration_ms: Mapped[Optional[int]] = mapped_column(sa.Integer, nullable=True)
     started_at: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
     )
-    completed_at: Mapped[sa.DateTime | None] = mapped_column(sa.DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[sa.DateTime]] = mapped_column(sa.DateTime(timezone=True), nullable=True)
 
     # Relationships
     session: Mapped["Session"] = relationship(back_populates="tool_executions")

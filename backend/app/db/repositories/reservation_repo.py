@@ -40,7 +40,7 @@ class ReservationRepository:
         return result.scalar_one_or_none()
 
     async def get_by_session(
-        self, session_id: str, status: ReservationStatus | None = None
+        self, session_id: str, status: Optional[ReservationStatus] = None
     ) -> list[Reservation]:
         """Get reservations for a session."""
         conditions = [Reservation.session_id == session_id]
@@ -80,7 +80,7 @@ class ReservationRepository:
         store_id: str,
         items: list[dict],
         expires_at: datetime,
-        idempotency_key: str | None = None,
+        idempotency_key: Optional[str] = None,
     ) -> Reservation:
         """Create a new reservation with items."""
         total_amount = sum(item["subtotal"] for item in items)

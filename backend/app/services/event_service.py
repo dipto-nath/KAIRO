@@ -3,7 +3,7 @@
 import asyncio
 import json
 from datetime import datetime, timezone
-from typing import Any, AsyncGenerator, Callable, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, Optional
 from collections import defaultdict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -64,8 +64,8 @@ class EventService:
         self,
         session_id: str,
         tool_name: str,
-        output: dict[str, Any] | None = None,
-        error: str | None = None,
+        output: Optional[Dict[str, Any]] = None,
+        error: Optional[str] = None,
     ) -> AgentEvent:
         """Emit tool completed event."""
         return await self.emit(
@@ -133,7 +133,7 @@ class EventService:
         )
 
     async def emit_error(
-        self, session_id: str, error_code: str, message: str, details: dict[str, Any] | None = None
+        self, session_id: str, error_code: str, message: str, details: Optional[Dict[str, Any]] = None
     ) -> AgentEvent:
         """Emit error event."""
         return await self.emit(

@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
+from typing import Optional
 
 
 class ProductAttribute(Base):
@@ -30,7 +31,7 @@ class Product(Base):
     id: Mapped[str] = mapped_column(sa.String(64), primary_key=True)
     sku: Mapped[str] = mapped_column(sa.String(64), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(sa.String(256), nullable=False)
-    name_hindi: Mapped[str | None] = mapped_column(sa.String(256), nullable=True)
+    name_hindi: Mapped[Optional[str]] = mapped_column(sa.String(256), nullable=True)
     description: Mapped[str] = mapped_column(sa.Text, nullable=False)
     category: Mapped[str] = mapped_column(sa.String(64), index=True, nullable=False)
     subcategory: Mapped[str] = mapped_column(sa.String(64), index=True, nullable=False)
@@ -39,11 +40,11 @@ class Product(Base):
     temperature: Mapped[str] = mapped_column(sa.String(32), nullable=False)  # cold, hot, ambient
     sugar_level: Mapped[str] = mapped_column(sa.String(32), nullable=False)  # zero, low, medium, high
     carbonated: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
-    brand: Mapped[str | None] = mapped_column(sa.String(128), nullable=True)
+    brand: Mapped[Optional[str]] = mapped_column(sa.String(128), nullable=True)
     aisle: Mapped[str] = mapped_column(sa.String(64), nullable=False)
     section: Mapped[str] = mapped_column(sa.String(128), nullable=False)
-    image_url: Mapped[str | None] = mapped_column(sa.String(512), nullable=True)
-    image_emoji: Mapped[str | None] = mapped_column(sa.String(8), nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(sa.String(512), nullable=True)
+    image_emoji: Mapped[Optional[str]] = mapped_column(sa.String(8), nullable=True)
     is_active: Mapped[bool] = mapped_column(sa.Boolean, default=True, nullable=False)
     created_at: Mapped[sa.DateTime] = mapped_column(
         sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False

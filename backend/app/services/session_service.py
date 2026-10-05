@@ -1,7 +1,7 @@
 """Session Service - Business logic for session operations."""
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,7 +23,7 @@ class SessionService:
 
     async def create_session(
         self,
-        store_id: str | None = None,
+        store_id: Optional[str] = None,
         language: str = "en",
     ) -> dict[str, Any]:
         """Create a new session."""
@@ -52,7 +52,7 @@ class SessionService:
             "created_at": session.created_at,
         }
 
-    async def get_session(self, session_id: str) -> dict[str, Any] | None:
+    async def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get session by ID."""
         session = await self.repo.get_by_id(session_id)
         if not session:
@@ -73,7 +73,7 @@ class SessionService:
             "ended_at": session.ended_at,
         }
 
-    async def get_full_session_state(self, session_id: str) -> dict[str, Any] | None:
+    async def get_full_session_state(self, session_id: str) -> Optional[Dict[str, Any]]:
         """Get full session state for control console."""
         session = await self.repo.get_by_id(session_id)
         if not session:
@@ -161,14 +161,14 @@ class SessionService:
 
     async def update_session_state(
         self, session_id: str, state: str
-    ) -> dict[str, Any] | None:
+    ) -> Optional[Dict[str, Any]]:
         """Update session current state."""
         session = await self.repo.update_state(session_id, state)
         if not session:
             return None
         return {"session_id": session.id, "current_state": session.current_state}
 
-    async def update_intent(self, session_id: str, intent: str | None) -> dict[str, Any] | None:
+    async def update_intent(self, session_id: str, intent: Optional[str]) -> Optional[Dict[str, Any]]:
         """Update session intent."""
         session = await self.repo.update_intent(session_id, intent)
         if not session:
@@ -177,7 +177,7 @@ class SessionService:
 
     async def update_constraints(
         self, session_id: str, constraints: dict[str, Any]
-    ) -> dict[str, Any] | None:
+    ) -> Optional[Dict[str, Any]]:
         """Update session constraints."""
         session = await self.repo.update_constraints(session_id, constraints)
         if not session:
@@ -185,8 +185,8 @@ class SessionService:
         return {"session_id": session.id, "constraints": session.constraints}
 
     async def update_safety_state(
-        self, session_id: str, safety_state: dict[str, Any] | None
-    ) -> dict[str, Any] | None:
+        self, session_id: str, safety_state: Optional[Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
         """Update session safety state."""
         session = await self.repo.update_safety_state(session_id, safety_state)
         if not session:
@@ -194,8 +194,8 @@ class SessionService:
         return {"session_id": session.id, "safety_state": session.safety_state}
 
     async def set_active_reservation(
-        self, session_id: str, reservation_id: str | None
-    ) -> dict[str, Any] | None:
+        self, session_id: str, reservation_id: Optional[str]
+    ) -> Optional[Dict[str, Any]]:
         """Set active reservation for session."""
         session = await self.repo.set_active_reservation(session_id, reservation_id)
         if not session:
@@ -209,7 +209,7 @@ class SessionService:
         content: str,
         sequence: int,
         is_streaming: bool = False,
-        metadata: dict[str, Any] | None = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> dict[str, Any]:
         """Add a conversation message."""
         message_role = MessageRole(role)
@@ -231,7 +231,7 @@ class SessionService:
             "created_at": message.created_at,
         }
 
-    async def end_session(self, session_id: str) -> dict[str, Any] | None:
+    async def end_session(self, session_id: str) -> Optional[Dict[str, Any]]:
         """End a session."""
         session = await self.repo.end_session(session_id)
         if not session:
