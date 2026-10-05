@@ -41,11 +41,14 @@ export default function ConversationPage() {
   const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     // Auto-start session and listening when page loads
     const initConversation = async () => {
       try {
         await startSession();
-        startListening();
+        if (mounted) {
+          startListening();
+        }
       } catch (error) {
         console.error("Failed to start session:", error);
       }
@@ -54,6 +57,7 @@ export default function ConversationPage() {
 
     // Cleanup on unmount
     return () => {
+      mounted = false;
       stopListening();
     };
   }, [startSession, startListening, stopListening]);
@@ -197,10 +201,9 @@ export default function ConversationPage() {
 
       <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div
+          className="main-layout"
           style={{
             flex: 1,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
             gap: "1.5rem",
             padding: "1.5rem",
             overflow: "hidden",
@@ -334,20 +337,23 @@ export default function ConversationPage() {
                 {DEMO_SCENARIOS.map((scenario) => (
                   <button
                     key={scenario.id}
-                    onClick={() => {
+                    onClick={async () => {
                       setIsSimulating(true);
                       resetSession();
-                      if (scenario.id === "product_discovery") {
-                        runProductDiscovery("I need a cold drink under ₹70, preferably not too sweet.");
-                      } else if (scenario.id === "low_stock") {
-                        runLowStockAlternatives();
-                      } else if (scenario.id === "reservation") {
-                        runProductDiscovery("Reserve one Strawberry Milk please.");
-                      } else if (scenario.id === "safety_escalation") {
-                        addTranscript("user", "What medicine should I take for chest pain?");
-                        runSafetyEscalation();
+                      try {
+                        if (scenario.id === "product_discovery") {
+                          await runProductDiscovery("I need a cold drink under ₹70, preferably not too sweet.");
+                        } else if (scenario.id === "low_stock") {
+                          await runLowStockAlternatives();
+                        } else if (scenario.id === "reservation") {
+                          await runProductDiscovery("Reserve one Strawberry Milk please.");
+                        } else if (scenario.id === "safety_escalation") {
+                          addTranscript("user", "What medicine should I take for chest pain?");
+                          await runSafetyEscalation();
+                        }
+                      } finally {
+                        setIsSimulating(false);
                       }
-                      setIsSimulating(false);
                     }}
                     style={{
                       padding: "0.75rem 1rem",

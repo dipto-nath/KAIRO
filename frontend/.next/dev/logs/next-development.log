@@ -1,1 +1,231 @@
-{"timestamp":"00:00:00.874","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:00.457","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:01:29.185","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/page.tsx:44:13)"}
+{"timestamp":"00:01:29.186","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/page.tsx:44:13)\""}
+{"timestamp":"00:01:29.186","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:01:29.186","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:03:10.306","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:03:10.327","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:03:10.353","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:10.353","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:10.353","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:10.353","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:10.353","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:12.077","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:12.077","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:12.077","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:03:12.415","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/demo/page.tsx:48:13)"}
+{"timestamp":"00:03:12.415","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/demo/page.tsx:48:13)\""}
+{"timestamp":"00:03:12.415","source":"Browser","level":"ERROR","message":"⨯ unhandledRejection: TypeError: Load failed\n"}
+{"timestamp":"00:03:12.416","source":"Server","level":"ERROR","message":"[browser] \"⨯ unhandledRejection: TypeError: Load failed\\n\""}
+{"timestamp":"00:03:13.673","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:03:13.673","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:03:13.836","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:03:13.836","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:06:24.675","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:06:24.675","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:06:24.675","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:06:24.675","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:06:24.675","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:07:51.804","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:07:51.814","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:07:51.847","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:10:22.073","source":"Server","level":"LOG","message":"✓ Compiled in 62ms"}
+{"timestamp":"00:10:37.707","source":"Server","level":"LOG","message":"✓ Compiled in 27ms"}
+{"timestamp":"00:10:49.016","source":"Server","level":"ERROR","message":"⨯ ./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component]\n\n"}
+{"timestamp":"00:10:49.176","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.177","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:10:49.178","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.178","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:10:49.340","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.340","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:10:49.452","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.452","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:10:49.505","source":"Server","level":"ERROR","message":"⨯ ./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component]\n\n"}
+{"timestamp":"00:10:49.914","source":"Browser","level":"ERROR","message":"Uncaught Error: ./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component]\n\n\n    at <unknown> (Error: ./src/app/page.tsx:287:20)\n    at <unknown> (Error: (./src/app/page.tsx:287:20)"}
+{"timestamp":"00:10:49.914","source":"Server","level":"ERROR","message":"[browser] \"Uncaught Error: ./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\\n\\n\\n    at <unknown> (Error: ./src/app/page.tsx:287:20)\\n    at <unknown> (Error: (./src/app/page.tsx:287:20)\""}
+{"timestamp":"00:10:49.918","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.918","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:10:49.959","source":"Browser","level":"ERROR","message":"./src/app/page.tsx:287:20\nError: Expected '</', got 'jsx text'\n  285 |\n  286 |\n> 287 |       </KairoShell>\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n> 288 |     </ClientOnly>\n      | ^^^^\n  289 |   );\n  290 | }\n  291 |\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/page.tsx [Client Component Browser]\n    ./src/app/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/page.tsx [Client Component SSR]\n    ./src/app/page.tsx [Server Component] "}
+{"timestamp":"00:10:49.959","source":"Server","level":"ERROR","message":"[browser] \"./src/app/page.tsx:287:20\\nError: Expected '</', got 'jsx text'\\n  285 |\\n  286 |\\n> 287 |       </KairoShell>\\n      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n> 288 |     </ClientOnly>\\n      | ^^^^\\n  289 |   );\\n  290 | }\\n  291 |\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/page.tsx [Client Component Browser]\\n    ./src/app/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/page.tsx [Client Component SSR]\\n    ./src/app/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:11:16.311","source":"Server","level":"LOG","message":"✓ Compiled in 12ms"}
+{"timestamp":"00:11:38.019","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload due to a runtime error."}
+{"timestamp":"00:12:16.415","source":"Server","level":"LOG","message":"✓ Compiled in 16ms"}
+{"timestamp":"00:13:46.278","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/page.tsx:44:13)"}
+{"timestamp":"00:13:46.278","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/page.tsx:44:13)\""}
+{"timestamp":"00:13:46.278","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:13:46.278","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:26:00.286","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:26:00.287","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:26:00.342","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:00.342","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:00.342","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:00.342","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:00.342","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:01.708","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:01.708","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:02.923","source":"Browser","level":"ERROR","message":"⨯ unhandledRejection: ReferenceError: Can't find variable: MOCK_PRODUCTS\n    at <unknown> (src/app/demo/page.tsx:56:35)\n  54 |         addTranscript(\"kairo\", \"I found a few cold drinks under ₹70 that are currently in stock. Would you like to reserve one of these?\");\n  55 |         update({\n> 56 |           products: [MOCK_PRODUCTS[1], MOCK_PRODUCTS[2], MOCK_PRODUCTS[5]],\n     |                                   ^\n  57 |         });\n  58 |       } else if (id === \"low_stock\") {\n  59 |         addTranscript(\"user\", \"Do you have Green Apple Sparkling?\");"}
+{"timestamp":"00:26:02.923","source":"Server","level":"ERROR","message":"[browser] \"⨯ unhandledRejection: ReferenceError: Can't find variable: MOCK_PRODUCTS\\n    at <unknown> (src/app/demo/page.tsx:56:35)\\n  54 |         addTranscript(\\\"kairo\\\", \\\"I found a few cold drinks under ₹70 that are currently in stock. Would you like to reserve one of these?\\\");\\n  55 |         update({\\n> 56 |           products: [MOCK_PRODUCTS[1], MOCK_PRODUCTS[2], MOCK_PRODUCTS[5]],\\n     |                                   ^\\n  57 |         });\\n  58 |       } else if (id === \\\"low_stock\\\") {\\n  59 |         addTranscript(\\\"user\\\", \\\"Do you have Green Apple Sparkling?\\\");\""}
+{"timestamp":"00:26:48.244","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:48.244","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:48.244","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:48.244","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:48.244","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:49.171","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:49.171","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:50.403","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:26:50.403","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:11.265","source":"Server","level":"LOG","message":"✓ Compiled in 117ms"}
+{"timestamp":"00:29:34.884","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:34.885","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:36.065","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:36.065","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:42.492","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:42.492","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:43.705","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:43.705","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:52.385","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:52.385","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:53.607","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:29:53.607","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:30:08.321","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:30:08.321","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:30:09.535","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:30:09.535","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:34:50.947","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:34:50.948","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:34:50.948","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:35:42.009","source":"Server","level":"LOG","message":"✓ Compiled in 33ms"}
+{"timestamp":"00:36:10.251","source":"Server","level":"LOG","message":"✓ Compiled in 134ms"}
+{"timestamp":"00:36:30.138","source":"Server","level":"LOG","message":"✓ Compiled in 28ms"}
+{"timestamp":"00:37:10.571","source":"Server","level":"LOG","message":"✓ Compiled in 20ms"}
+{"timestamp":"00:38:55.061","source":"Server","level":"LOG","message":"✓ Compiled in 48ms"}
+{"timestamp":"00:40:06.305","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/page.tsx:23:13)"}
+{"timestamp":"00:40:06.305","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/page.tsx:23:13)\""}
+{"timestamp":"00:40:06.305","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:40:06.305","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:40:14.458","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:40:14.463","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:40:14.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:14.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:14.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:14.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:14.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:14.506","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:40:14.506","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:40:14.506","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:40:14.506","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:40:14.506","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:40:14.506","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:40:14.506","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:40:14.506","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:40:15.925","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:40:15.925","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:40:17.199","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:40:17.199","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:40:17.215","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:40:17.215","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:40:17.231","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:40:17.231","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:40:27.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:27.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:27.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:40:28.003","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:42:26.914","source":"Server","level":"LOG","message":"✓ Compiled in 40ms"}
+{"timestamp":"00:43:18.511","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/page.tsx:23:13)"}
+{"timestamp":"00:43:18.512","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/page.tsx:23:13)\""}
+{"timestamp":"00:43:18.512","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:43:18.513","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:43:22.584","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:43:22.621","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:43:22.621","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:43:22.621","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:43:22.621","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:43:22.622","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:43:22.622","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:43:22.622","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:43:22.622","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:43:22.622","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:43:22.622","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:43:22.622","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:43:22.622","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:43:22.624","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:43:22.624","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:43:47.090","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:43:47.091","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:43:47.091","source":"Browser","level":"ERROR","message":"⨯ unhandledRejection: TypeError: Load failed\n"}
+{"timestamp":"00:43:47.091","source":"Server","level":"ERROR","message":"[browser] \"⨯ unhandledRejection: TypeError: Load failed\\n\""}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:43:51.964","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:44:18.327","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:44:18.327","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:44:19.540","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:44:19.540","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:50:15.619","source":"Server","level":"LOG","message":"✓ Compiled in 68ms"}
+{"timestamp":"00:51:11.521","source":"Server","level":"LOG","message":"✓ Compiled in 22ms"}
+{"timestamp":"00:51:13.533","source":"Server","level":"LOG","message":"✓ Compiled in 12ms"}
+{"timestamp":"00:54:33.522","source":"Browser","level":"ERROR","message":"./src/app/demo/page.tsx:310:1\nError: Expected '</', got '<eof>'\n  308 |   );\n  309 | }\n> 310 |\n      | ^\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/demo/page.tsx [Client Component Browser]\n    ./src/app/demo/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/demo/page.tsx [Client Component SSR]\n    ./src/app/demo/page.tsx [Server Component] "}
+{"timestamp":"00:54:33.523","source":"Server","level":"ERROR","message":"[browser] \"./src/app/demo/page.tsx:310:1\\nError: Expected '</', got '<eof>'\\n  308 |   );\\n  309 | }\\n> 310 |\\n      | ^\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/demo/page.tsx [Client Component Browser]\\n    ./src/app/demo/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/demo/page.tsx [Client Component SSR]\\n    ./src/app/demo/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:54:33.523","source":"Browser","level":"ERROR","message":"./src/app/demo/page.tsx:310:1\nError: Expected '</', got '<eof>'\n  308 |   );\n  309 | }\n> 310 |\n      | ^\n\nParsing ecmascript source code failed\n\nImport traces:\n  Client Component Browser:\n    ./src/app/demo/page.tsx [Client Component Browser]\n    ./src/app/demo/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./src/app/demo/page.tsx [Client Component SSR]\n    ./src/app/demo/page.tsx [Server Component] "}
+{"timestamp":"00:54:33.523","source":"Server","level":"ERROR","message":"[browser] \"./src/app/demo/page.tsx:310:1\\nError: Expected '</', got '<eof>'\\n  308 |   );\\n  309 | }\\n> 310 |\\n      | ^\\n\\nParsing ecmascript source code failed\\n\\nImport traces:\\n  Client Component Browser:\\n    ./src/app/demo/page.tsx [Client Component Browser]\\n    ./src/app/demo/page.tsx [Server Component]\\n\\n  Client Component SSR:\\n    ./src/app/demo/page.tsx [Client Component SSR]\\n    ./src/app/demo/page.tsx [Server Component]\" \"\""}
+{"timestamp":"00:54:58.476","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:54:58.476","source":"Server","level":"WARN","message":"[browser] \"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\""}
+{"timestamp":"00:54:58.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:54:58.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:54:58.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:54:58.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:54:58.499","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:54:58.782","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:54:58.782","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:54:58.783","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:54:58.783","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:54:58.783","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:54:58.783","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:54:58.783","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:54:58.783","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:54:59.943","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:54:59.943","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:55:00.092","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:55:25.944","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:55:25.944","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:55:25.944","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:55:25.991","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:15.015","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/page.tsx:23:13)"}
+{"timestamp":"00:57:15.017","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/page.tsx:23:13)\""}
+{"timestamp":"00:57:15.017","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:57:15.017","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:57:19.395","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:19.395","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:19.395","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:19.395","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:19.395","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"00:57:19.433","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:57:19.433","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:57:19.433","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:57:19.434","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:57:19.434","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:57:19.434","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:57:19.434","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:57:19.434","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:57:19.434","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"00:57:19.434","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"00:57:19.434","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"00:57:19.434","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}

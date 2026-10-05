@@ -119,7 +119,7 @@ class SessionService:
                     "content": m.content,
                     "sequence": m.sequence,
                     "is_streaming": m.is_streaming,
-                    "metadata": m.metadata,
+                    "metadata": m.message_metadata,
                     "created_at": m.created_at,
                 }
                 for m in messages
@@ -227,7 +227,7 @@ class SessionService:
             "content": message.content,
             "sequence": message.sequence,
             "is_streaming": message.is_streaming,
-            "metadata": message.metadata,
+            "metadata": message.message_metadata,
             "created_at": message.created_at,
         }
 

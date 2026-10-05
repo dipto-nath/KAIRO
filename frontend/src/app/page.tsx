@@ -1,43 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { KairoShell } from "@/components/shell/KairoShell";
-import { ProductGrid } from "@/components/products/ProductCard";
-import {
-  ReservationSummary,
-  ReservationSuccess,
-} from "@/components/reservation/ReservationFlow";
-import { SafetyEscalation, HumanHandoff } from "@/components/safety/SafetyEscalation";
 import { useSession } from "@/hooks/useSession";
-import { MOCK_INVENTORY, MOCK_STORE, DEMO_SCENARIOS } from "@/data/mock";
-import type { Product } from "@/types";
 import { ClientOnly } from "@/components/ClientOnly";
+import {
+  KairoMark,
+  ArrowRightIcon,
+  StatusDot,
+  ShieldIcon,
+  ZapIcon,
+  PulseRing,
+} from "@/components/ui/icons";
 
 export default function HomePage() {
   const router = useRouter();
-
-  const {
-    session,
-    resetSession,
-    runProductDiscovery,
-    runReservation,
-    updateReservation,
-    runSafetyEscalation,
-    runLowStockAlternatives,
-    addTranscript,
-    startSession,
-  } = useSession();
-
-  const [showReservationFor, setShowReservationFor] = useState<Product | null>(null);
-  const [inputText, setInputText] = useState("");
-  const [isSimulating, setIsSimulating] = useState(false);
-
-  // Quick tap suggestion state
-  const lastKairo = session.transcript.filter((t) => t.speaker === "kairo").slice(-1)[0];
-  const showCarbOptions =
-    lastKairo?.text.includes("carbonated or non-carbonated") &&
-    session.status === "idle";
+  const { session, resetSession, startSession } = useSession();
 
   const handleStartConversation = async () => {
     try {
@@ -48,309 +27,231 @@ export default function HomePage() {
     }
   };
 
-  const handleTextSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-    const text = inputText.trim();
-    setInputText("");
-    setIsSimulating(true);
-    runProductDiscovery(text).finally(() => setIsSimulating(false));
-  };
-
-  const handleReserve = (product: Product) => {
-    setShowReservationFor(product);
-  };
-
-  const handleConfirmReservation = (qty: number) => {
-    if (!showReservationFor) return;
-    setShowReservationFor(null);
-    runReservation(showReservationFor, qty);
-  };
-
-  const handleUpdateReservation = (qty: number) => {
-    if (!session.reservation) return;
-    updateReservation(session.reservation, qty);
-  };
-
-  const handleSafetyDemo = () => {
-    setIsSimulating(true);
-    addTranscript("user", "What medicine should I take for chest pain?");
-    runSafetyEscalation();
-    setIsSimulating(false);
-  };
-
-  const handleLowStock = () => {
-    setIsSimulating(true);
-    runLowStockAlternatives().finally(() => setIsSimulating(false));
-  };
-
-  const handleCarbOption = (val: string) => {
-    if (isSimulating) return;
-    setIsSimulating(true);
-    addTranscript("user", val);
-    const lastUserText = session.transcript.filter((t) => t.speaker === "user").slice(-2)[0]?.text ?? "";
-    runProductDiscovery(`${lastUserText} ${val}`).finally(() =>
-      setIsSimulating(false)
-    );
-  };
-
-  const isActive = session.status !== "idle";
-  const hasProducts = session.products.length > 0;
-  const hasReservation = !!session.reservation;
-  const hasSafety = !!session.safetyState?.triggered;
-
   return (
     <ClientOnly>
       <KairoShell showNav>
-        <div
+        <main
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            height: "100vh",
-            minHeight: 0,
-            overflow: "hidden",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "var(--space-4xl) var(--space-xl)",
+            maxWidth: "720px",
+            margin: "0 auto",
+            width: "100%",
           }}
-          className="main-layout"
         >
-          {/* ── Left: Welcome + Quick Actions ─────────────────── */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "2rem 2rem 1.5rem",
-              gap: "1.5rem",
-              borderRight: "1px solid var(--color-kairo-border)",
-              overflowY: "auto",
-            }}
-          >
-            {/* Welcome Section */}
-            <div style={{ textAlign: "center", maxWidth: 400 }}>
-              <div style={{ fontSize: "2.5rem", fontWeight: 700, color: "var(--color-kairo-ink)", marginBottom: "1rem" }}>
-                Welcome to KAIRO
-              </div>
-              <div style={{ color: "var(--color-kairo-subtle)", fontSize: "1.125rem", lineHeight: 1.6 }}>
-                Your real-time AI voice assistant for retail. 
-                Tap below to start a conversation.
-              </div>
-            </div>
-
-            {/* Start Conversation Button */}
-            <button 
-              className="btn-primary"
-              onClick={handleStartConversation}
-              style={{ padding: "1rem 2.5rem", borderRadius: "12px", fontSize: "1.125rem", minWidth: 280 }}
-            >
-              Start Conversation
-            </button>
-
-            {/* Quick Options */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", width: "100%", maxWidth: 320 }}>
-              <button
-                className="btn-secondary"
-                onClick={() => {
-                  startSession().then(() => router.push("/conversation"));
+          {session.status === "idle" ? (
+            <div style={{ textAlign: "center", maxWidth: "560px" }}>
+              {/* Logo mark - subtle, animated */}
+              <img
+                src="/logo.png"
+                alt="KAIRO Logo"
+                className="animate-fade-up"
+                style={{
+                  width: 80,
+                  height: 80,
+                  margin: "0 auto var(--space-xl)",
+                  borderRadius: "var(--radius-lg)",
+                  objectFit: "cover",
+                  display: "block",
+                  boxShadow: "var(--shadow-lg)",
                 }}
-                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
-              >
-                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Find a Product</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Search by name, category, or preferences</div>
-              </button>
-              <button
-                className="btn-secondary"
-                onClick={() => {
-                  startSession().then(() => router.push("/conversation"));
-                }}
-                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
-              >
-                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Reserve an Item</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Quick 30-minute hold on any product</div>
-              </button>
-              <button
-                className="btn-secondary"
-                onClick={() => {
-                  startSession().then(() => router.push("/conversation"));
-                }}
-                style={{ textAlign: "left", padding: "1rem 1.25rem", fontSize: "0.9375rem" }}
-              >
-                <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>Check Alternatives</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)" }}>Find substitutes when items are out of stock</div>
-              </button>
-            </div>
+              />
 
-            {/* Safety Escalation */}
-            {hasSafety && session.safetyState && (
-              <div style={{ width: "100%", maxWidth: 480 }}>
-                <SafetyEscalation
-                  safety={session.safetyState}
-                  onConnectStaff={() => alert("Connecting to staff...")}
-                  onContinue={() => {}}
-                  onDismiss={resetSession}
+              <h1
+                className="text-display animate-fade-up"
+                style={{
+                  animationDelay: "0.1s",
+                  marginBottom: "var(--space-md)",
+                  color: "var(--color-kairo-ink)",
+                }}
+              >
+                Real-Time AI for Retail
+              </h1>
+
+              <p
+                className="text-body-lg animate-fade-up"
+                style={{
+                  animationDelay: "0.2s",
+                  marginBottom: "var(--space-2xl)",
+                  maxWidth: "480px",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Talk to your store. Get instant product discovery, reservations,
+                and safety‑guided recommendations—powered by agentic AI that runs
+                on the edge.
+              </p>
+
+              {/* Primary CTA */}
+              <button
+                onClick={handleStartConversation}
+                className="btn-primary animate-fade-up"
+                style={{
+                  animationDelay: "0.3s",
+                  padding: "1rem 2rem",
+                  fontSize: "1.0625rem",
+                }}
+              >
+                Start Conversation
+                <ArrowRightIcon size={20} style={{ marginLeft: "0.5rem" }} />
+              </button>
+
+              {/* Trust signals - minimal */}
+              <div
+                className="animate-fade-up"
+                style={{
+                  animationDelay: "0.4s",
+                  marginTop: "var(--space-2xl)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "var(--space-xl)",
+                  color: "var(--color-kairo-muted)",
+                  fontSize: "0.875rem",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                  <StatusDot status="online" size={6} />
+                  <span>Live at Store #042</span>
+                </div>
+                <div
+                  style={{
+                    width: "1px",
+                    height: "1.25rem",
+                    background: "var(--color-kairo-border)",
+                  }}
                 />
-                <div style={{ marginTop: "0.75rem" }}>
-                  <HumanHandoff />
+                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                  <ShieldIcon size={14} />
+                  <span>Safety‑first</span>
+                </div>
+                <div
+                  style={{
+                    width: "1px",
+                    height: "1.25rem",
+                    background: "var(--color-kairo-border)",
+                  }}
+                />
+                <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                  <ZapIcon size={14} />
+                  <span>Sub‑second latency</span>
                 </div>
               </div>
-            )}
-
-            {/* Demo Scenarios */}
-            <div style={{ marginTop: "auto", paddingTop: "1.5rem", borderTop: "1px solid var(--color-kairo-border)" }}>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", maxWidth: "560px" }}>
               <div
+                className="animate-fade-up"
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
                   padding: "0.5rem 1rem",
-                  fontSize: "0.6rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
+                  background: "var(--color-pulse-ghost)",
+                  border: "1px solid var(--color-pulse-light)",
+                  borderRadius: "var(--radius-full)",
+                  marginBottom: "var(--space-lg)",
+                  color: "var(--color-pulse)",
+                }}
+              >
+                <PulseRing size={8} />
+                <span style={{ fontWeight: 500 }}>Session active</span>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0.125rem 0.5rem",
+                    background: "var(--color-pulse)",
+                    color: "white",
+                    borderRadius: "var(--radius-full)",
+                  }}
+                >
+                  {session.products.length} products
+                </span>
+              </div>
+
+              <h1
+                className="text-heading animate-fade-up"
+                style={{ animationDelay: "0.1s" }}
+              >
+                Continue where you left off
+              </h1>
+
+              <p
+                className="text-body animate-fade-up"
+                style={{
+                  animationDelay: "0.15s",
+                  marginBottom: "var(--space-xl)",
                   color: "var(--color-kairo-muted)",
                 }}
               >
-                Try a Scenario
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {DEMO_SCENARIOS.map((scenario) => (
-                  <button
-                    key={scenario.id}
-                    onClick={() => {
-                      setIsSimulating(true);
-                      resetSession();
-                      if (scenario.id === "product_discovery") {
-                        runProductDiscovery("I need a cold drink under ₹70, preferably not too sweet.");
-                      } else if (scenario.id === "low_stock") {
-                        runLowStockAlternatives();
-                      } else if (scenario.id === "reservation") {
-                        runProductDiscovery("Reserve one Strawberry Milk please.");
-                      } else if (scenario.id === "safety_escalation") {
-                        addTranscript("user", "What medicine should I take for chest pain?");
-                        runSafetyEscalation();
-                      }
-                      setIsSimulating(false);
-                    }}
-                    style={{
-                      padding: "0.75rem 1rem",
-                      background: "var(--color-kairo-surface)",
-                      border: "1px solid var(--color-kairo-border)",
-                      borderRadius: "8px",
-                      textAlign: "left",
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    <div style={{ fontWeight: 600, color: "var(--color-kairo-ink)" }}>
-                      {scenario.label}
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "var(--color-kairo-muted)" }}>
-                      {scenario.description}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+                Your conversation is waiting. Pick up right where you left off.
+              </p>
 
-            {/* Store info footer */}
-            <div
-              style={{
-                marginTop: "2.5rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.625rem 1rem",
-                background: "var(--color-kairo-surface)",
-                border: "1px solid var(--color-kairo-border)",
-                borderRadius: "8px",
-              }}
-            >
-              <span
-                style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: "50%",
-                  background: "var(--color-success)",
-                  boxShadow: "0 0 6px var(--color-success)",
-                  display: "block",
-                }}
-              />
-              <span
-                style={{
-                  fontSize: "0.8125rem",
-                  color: "var(--color-kairo-subtle)",
-                }}
+              <Link
+                href="/conversation"
+                className="btn-primary animate-fade-up"
+                style={{ animationDelay: "0.2s" }}
               >
-                Store #042 · Hatiara Central · Open now
-              </span>
-            </div>
-          </div>
+                Open Conversation
+                <ArrowRightIcon size={20} style={{ marginLeft: "0.5rem" }} />
+              </Link>
 
-          {/* ── Right: Transcript + Activity ──────── */}
-          <div
+              <div style={{ marginTop: "var(--space-lg)" }}>
+                <button
+                  onClick={resetSession}
+                  className="btn-ghost"
+                >
+                  Start Fresh
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
+        
+        {/* Footer */}
+        <footer
+          style={{
+            padding: "var(--space-xl) var(--space-xl)",
+            borderTop: "1px solid var(--color-kairo-border)",
+            textAlign: "center",
+          }}
+        >
+          <p
             style={{
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
+              fontSize: "0.8125rem",
+              color: "var(--color-kairo-subtle)",
+              maxWidth: "480px",
+              margin: "0 auto",
             }}
           >
-            {/* Conversation Transcript */}
-            <div
+            KAIRO · Real-Time Agentic AI for Retail ·{" "}
+            <a
+              href="/privacy"
               style={{
-                flex: "0 0 auto",
-                borderBottom: "1px solid var(--color-kairo-border)",
+                color: "var(--color-kairo-muted)",
+                textDecoration: "underline",
               }}
             >
-              <PanelHeader label="Conversation" />
-              <div style={{ padding: "1rem", color: "var(--color-kairo-muted)", textAlign: "center" }}>
-                Conversation will appear here after starting a conversation.
-              </div>
-            </div>
-
-            {/* KAIRO Activity */}
-            <div style={{ flex: 1, overflowY: "auto" }}>
-              <PanelHeader label="KAIRO Activity" />
-              <div style={{ padding: "0.875rem 1rem" }}>
-                <div style={{ color: "var(--color-kairo-muted)", textAlign: "center" }}>Activity will appear here after starting a conversation.</div>
-              </div>
-            </div>
-
-            {/* Store Info */}
-            <div
+              Privacy
+            </a>{" "}
+            ·{" "}
+            <a
+              href="/terms"
               style={{
-                padding: "0.75rem 1rem",
-                borderTop: "1px solid var(--color-kairo-border)",
-                display: "flex",
-                gap: "0.5rem",
-                alignItems: "center",
+                color: "var(--color-kairo-muted)",
+                textDecoration: "underline",
               }}
             >
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--color-success)", boxShadow: "0 0 6px var(--color-success)", display: "block", flexShrink: 0 }} />
-              <span style={{ fontSize: "0.75rem", color: "var(--color-kairo-muted)" }}>
-                Store #042 · {MOCK_STORE.name} · Open now
-              </span>
-            </div>
-          </div>
-        </div>
+              Terms
+            </a>
+          </p>
+        </footer>
       </KairoShell>
     </ClientOnly>
-  );
-}
-
-function PanelHeader({ label }: { label: string }) {
-  return (
-    <div
-      style={{
-        padding: "0.75rem 1rem 0.5rem",
-        borderBottom: "1px solid var(--color-kairo-border)",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "0.6rem",
-          fontWeight: 700,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--color-kairo-muted)",
-        }}
-      >
-        {label}
-      </span>
-    </div>
   );
 }

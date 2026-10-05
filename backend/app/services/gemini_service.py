@@ -293,25 +293,26 @@ RESPONSE STYLE:
             return result
 
         for part in candidate.content.parts:
-            if part.text:
-                result["text"] += part.text
-            # Handle function call - check both attribute and dict access
-            if hasattr(part, 'function_call') and part.function_call:
-                fc = part.function_call
-                result["function_calls"].append(
-                    {
-                        "name": fc.name,
-                        "args": dict(fc.args) if fc.args else {},
-                    }
-                )
-            elif isinstance(part, dict) and 'function_call' in part:
-                fc = part['function_call']
-                result["function_calls"].append(
-                    {
-                        "name": fc.get('name', ''),
-                        "args": dict(fc.get('args', {})),
-                    }
-                )
+            if isinstance(part, dict):
+                if 'function_call' in part:
+                    fc = part['function_call']
+                    result["function_calls"].append(
+                        {
+                            "name": fc.get('name', ''),
+                            "args": dict(fc.get('args', {})),
+                        }
+                    )
+            else:
+                if hasattr(part, 'text') and part.text:
+                    result["text"] += part.text
+                if hasattr(part, 'function_call') and part.function_call:
+                    fc = part.function_call
+                    result["function_calls"].append(
+                        {
+                            "name": fc.name,
+                            "args": dict(fc.args) if fc.args else {},
+                        }
+                    )
 
         return result
 

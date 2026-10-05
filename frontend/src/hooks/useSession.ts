@@ -434,7 +434,7 @@ export function useSession() {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type === "transcript" && msg.data?.is_final) {
-            const text = msg.data.text;
+            const text = msg.data.transcript;
             if (text) {
               runProductDiscovery(text);
               stopListening();

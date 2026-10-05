@@ -2,608 +2,308 @@
 
 import { useState } from "react";
 import { KairoShell } from "@/components/shell/KairoShell";
-import { VoiceCore } from "@/components/voice/VoiceCore";
-import { WaveformBars } from "@/components/voice/WaveformBars";
-import { LiveTranscript } from "@/components/conversation/LiveTranscript";
-import { ContextChips } from "@/components/conversation/ContextChips";
-import { AgentActivity } from "@/components/agent/AgentActivity";
-import { ProductGrid } from "@/components/products/ProductCard";
-import {
-  ReservationSummary,
-  ReservationSuccess,
-} from "@/components/reservation/ReservationFlow";
-import { SafetyEscalation } from "@/components/safety/SafetyEscalation";
-import { useSession } from "@/hooks/useSession";
-import { MOCK_INVENTORY, MOCK_STORE, DEMO_SCENARIOS } from "@/data/mock";
-import type { Product, DemoScenarioId } from "@/types";
+import { useDemoSession } from "@/hooks/useDemoSession";
+import { DEMO_SCENARIOS, MOCK_PRODUCTS } from "@/data/mock";
+import { DemoScenarioId } from "@/types";
 import { ClientOnly } from "@/components/ClientOnly";
+import { ScenarioCard } from "@/components/demo/ScenarioCard";
+import { LiveTranscript } from "@/components/demo/LiveTranscript";
+import { SCENARIO_METRICS } from "@/data/demo-metrics";
+import { ProductGrid } from "@/components/products/ProductCard";
+import { ReservationSummary } from "@/components/reservation/ReservationFlow";
+import { 
+  ArrowRightIcon, SearchIcon, PackageIcon, TicketIcon, 
+  ShieldAlertIcon, PlayIcon, RotateCcwIcon, AlertTriangleIcon, 
+  UserCheckIcon, CodeIcon, ChevronDownIcon, ZapIcon, 
+  DatabaseIcon, WrenchIcon, ListIcon, StoreIcon, PillIcon, HeartPulseIcon
+} from "lucide-react";
+import Link from "next/link";
+
+const SCENARIOS = [
+  {
+    id: "product_discovery" as DemoScenarioId,
+    icon: SearchIcon,
+    title: "Product Discovery",
+    subtitle: "Natural language search with constraints",
+    duration: "~8s",
+    tags: ["Filtering", "Ranking", "Availability"],
+  },
+  {
+    id: "low_stock" as DemoScenarioId,
+    icon: PackageIcon,
+    title: "Low Stock Alternatives",
+    subtitle: "Proactive substitution when items unavailable",
+    duration: "~6s",
+    tags: ["Inventory", "Substitution", "Reasoning"],
+  },
+  {
+    id: "reservation" as DemoScenarioId,
+    icon: TicketIcon,
+    title: "Reservation Flow",
+    subtitle: "End-to-end hold with quantity confirmation",
+    duration: "~10s",
+    tags: ["Confirmation", "Inventory Lock", "Receipt"],
+  },
+  {
+    id: "safety_escalation" as DemoScenarioId,
+    icon: ShieldAlertIcon,
+    title: "Safety Escalation",
+    subtitle: "Guardrails + human handoff for medical queries",
+    duration: "~7s",
+    tags: ["Guardrails", "Escalation", "Compliance"],
+  },
+];
+
+function ArchitectureDiagram() {
+  return (
+    <svg viewBox="0 0 400 200" style={{ width: '100%', height: 'auto', flex: 1 }}>
+      <rect x="50" y="50" width="80" height="100" rx="8" fill="var(--color-pulse-ghost)" stroke="var(--color-pulse)" strokeWidth="2" />
+      <text x="90" y="105" textAnchor="middle" fill="var(--color-kairo-ink)" fontSize="14" fontWeight="600">User Input</text>
+      
+      <path d="M130 100 L200 100" stroke="var(--color-kairo-muted)" strokeWidth="2" strokeDasharray="4 4" markerEnd="url(#arrow)" />
+      
+      <rect x="200" y="20" width="150" height="160" rx="8" fill="var(--color-kairo-surface)" stroke="var(--color-signal)" strokeWidth="2" />
+      <text x="275" y="45" textAnchor="middle" fill="var(--color-signal)" fontSize="14" fontWeight="600">KAIRO Core</text>
+      
+      <rect x="215" y="60" width="120" height="30" rx="4" fill="var(--color-kairo-cream)" />
+      <text x="275" y="80" textAnchor="middle" fill="var(--color-kairo-ink)" fontSize="12">Reasoning Engine</text>
+      
+      <rect x="215" y="100" width="120" height="30" rx="4" fill="var(--color-kairo-cream)" />
+      <text x="275" y="120" textAnchor="middle" fill="var(--color-kairo-ink)" fontSize="12">Tool Integration</text>
+      
+      <rect x="215" y="140" width="120" height="30" rx="4" fill="var(--color-kairo-cream)" />
+      <text x="275" y="160" textAnchor="middle" fill="var(--color-kairo-ink)" fontSize="12">Safety Guardrails</text>
+      
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-kairo-muted)" />
+        </marker>
+      </defs>
+    </svg>
+  );
+}
 
 export default function DemoPage() {
-  const {
-    session,
-    resetSession,
-    runProductDiscovery,
-    runReservation,
-    updateReservation,
-    runSafetyEscalation,
-    runLowStockAlternatives,
-    addTranscript,
-  audioStream,
-  } = useSession();
-
-  const [activeScenario, setActiveScenario] = useState<DemoScenarioId | null>(null);
-  const [showReservationFor, setShowReservationFor] = useState<Product | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-
-  const runScenario = async (id: DemoScenarioId) => {
-    if (isRunning) return;
-    resetSession();
-    setActiveScenario(id);
-    setShowReservationFor(null);
-    setIsRunning(true);
-
-    try {
-      if (id === "product_discovery") {
-        await runProductDiscovery(
-          "I need a cold drink under ₹70, preferably not too sweet."
-        );
-      } else if (id === "low_stock") {
-        await runLowStockAlternatives();
-      } else if (id === "reservation") {
-        await runProductDiscovery("Reserve one Strawberry Milk please.");
-      } else if (id === "safety_escalation") {
-        addTranscript("user", "What medicine should I take for chest pain?");
-        await runSafetyEscalation();
-      }
-    } finally {
-      setIsRunning(false);
-    }
-  };
-
-  const handleReserve = (product: Product) => setShowReservationFor(product);
-  const handleConfirm = (qty: number) => {
-    if (!showReservationFor) return;
-    setShowReservationFor(null);
-    setIsRunning(true);
-    runReservation(showReservationFor, qty).finally(() => setIsRunning(false));
-  };
-
-  const hasProducts = session.products.length > 0;
-  const hasReservation = !!session.reservation;
-  const hasSafety = !!session.safetyState?.triggered;
+  const [activeScenarioId, setActiveScenarioId] = useState<DemoScenarioId>("product_discovery");
+  const { session, isRunning, runScenario, resetSession } = useDemoSession(activeScenarioId);
+  const metrics = SCENARIO_METRICS[activeScenarioId];
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <ClientOnly>
-    <KairoShell showNav>
-      {/* Demo Header */}
-      <div
-        style={{
-          padding: "1rem 1.5rem",
-          borderBottom: "1px solid var(--color-kairo-border)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: "0.625rem",
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "var(--color-signal)",
-              marginBottom: "0.125rem",
-            }}
-          >
-            Live Product Demonstration
-          </div>
-          <div
-            style={{
-              fontSize: "1.0625rem",
-              fontWeight: 600,
-              color: "var(--color-kairo-offwhite)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Smart Product Discovery + Reservation
-          </div>
-        </div>
-
-        {/* Scenario Picker */}
-        <div
-          style={{
-            display: "flex",
-            gap: "0.375rem",
-            flexWrap: "wrap",
-          }}
-        >
-          {DEMO_SCENARIOS.map((scenario) => (
-            <button
-              key={scenario.id}
-              onClick={() => runScenario(scenario.id)}
-              disabled={isRunning}
-              style={{
-                padding: "0.5rem 0.875rem",
-                background:
-                  activeScenario === scenario.id
-                    ? "var(--color-signal)"
-                    : "var(--color-kairo-surface)",
-                border: `1px solid ${
-                  activeScenario === scenario.id
-                    ? "var(--color-signal)"
-                    : "var(--color-kairo-border)"
-                }`,
-                borderRadius: "7px",
-                color:
-                  activeScenario === scenario.id
-                    ? "white"
-                    : "var(--color-kairo-subtle)",
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-                cursor: isRunning ? "not-allowed" : "pointer",
-                opacity: isRunning && activeScenario !== scenario.id ? 0.5 : 1,
-                transition: "all 0.15s ease",
-              }}
-            >
-              {scenario.label}
-            </button>
-          ))}
-
-          <button
-            onClick={resetSession}
-            style={{
-              padding: "0.5rem 0.875rem",
-              background: "transparent",
-              border: "1px solid var(--color-kairo-border)",
-              borderRadius: "7px",
-              color: "var(--color-kairo-muted)",
-              fontSize: "0.8125rem",
-              cursor: "pointer",
-            }}
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-
-      {/* Main Demo Canvas */}
-      <div
-        style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "1fr 340px",
-          overflow: "hidden",
-        }}
-        className="demo-layout"
-      >
-        {/* Center: Voice Experience */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "2.5rem 2rem",
-            gap: "1.5rem",
-            overflowY: "auto",
-            borderRight: "1px solid var(--color-kairo-border)",
-          }}
-        >
-          <VoiceCore state={session.status} size={200} audioStream={audioStream} />
-          <WaveformBars state={session.status} width={300} height={44} barCount={30} />
-
-          {/* Active scenario label */}
-          {activeScenario && (
-            <div
-              style={{
-                padding: "0.375rem 0.875rem",
-                background: "var(--color-kairo-surface)",
-                border: "1px solid var(--color-kairo-border)",
-                borderRadius: "6px",
-                fontSize: "0.75rem",
-                color: "var(--color-kairo-subtle)",
-              }}
-            >
-              Scenario:{" "}
-              <strong style={{ color: "var(--color-kairo-offwhite)" }}>
-                {DEMO_SCENARIOS.find((s) => s.id === activeScenario)?.label}
-              </strong>
+      <KairoShell showNav>
+        <div style={{ maxWidth: "960px", margin: "0 auto", padding: "var(--space-3xl) var(--space-xl)", width: "100%" }}>
+          
+          {/* Hero */}
+          <header style={{ textAlign: "center", marginBottom: "var(--space-3xl)", paddingBottom: "var(--space-2xl)", borderBottom: "1px solid var(--color-kairo-border)" }}>
+            <div className="animate-fade-up" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", background: "var(--color-pulse-ghost)", border: "1px solid var(--color-pulse-light)", borderRadius: "var(--radius-full)", marginBottom: "var(--space-lg)", color: "var(--color-pulse)", fontWeight: 500, fontSize: "0.875rem" }}>
+              <span className="pulse-ring" style={{ width: 8, height: 8 }} />
+              <span>Interactive Demo</span>
             </div>
-          )}
-
-          {session.constraints.length > 0 && (
-            <div style={{ width: "100%", maxWidth: 480 }}>
-              <ContextChips constraints={session.constraints} />
+            <h1 className="text-display animate-fade-up" style={{ animationDelay: "0.1s", marginBottom: "var(--space-md)", color: "var(--color-kairo-ink)" }}>
+              See KAIRO in Action
+            </h1>
+            <p className="text-body-lg animate-fade-up" style={{ animationDelay: "0.15s", maxWidth: "560px", margin: "0 auto var(--space-xl)" }}>
+              Four real scenarios. Real latency. Real agentic reasoning. Pick a scenario to watch the full conversation unfold — or jump to the technical breakdown.
+            </p>
+            <div className="animate-fade-up" style={{ animationDelay: "0.2s", display: "flex", gap: "var(--space-md)", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/conversation" className="btn-primary">
+                Try It Yourself
+                <ArrowRightIcon size={20} />
+              </Link>
+              <button onClick={() => document.getElementById("scenarios")?.scrollIntoView({ behavior: "smooth" })} className="btn-ghost">
+                Watch Scenarios
+              </button>
             </div>
-          )}
+          </header>
 
-          {/* Safety */}
-          {hasSafety && session.safetyState && (
-            <div style={{ width: "100%", maxWidth: 480 }}>
-              <SafetyEscalation
-                safety={session.safetyState}
-                onConnectStaff={() => {}}
-                onContinue={() => {}}
-                onDismiss={resetSession}
-              />
+          {/* Scenario Selector */}
+          <section id="scenarios" aria-labelledby="scenarios-heading">
+            <h2 id="scenarios-heading" className="text-label animate-fade-up" style={{ marginBottom: "var(--space-lg)" }}>Choose a Scenario</h2>
+            <div className="scenario-selector" role="tablist" aria-label="Demo scenarios">
+              {SCENARIOS.map((scenario, i) => (
+                <ScenarioCard key={scenario.id} scenario={scenario} activeId={activeScenarioId} setActiveId={(id) => { setActiveScenarioId(id); resetSession(); }} index={i} />
+              ))}
             </div>
-          )}
+          </section>
 
-          {/* Reservation pending */}
-          {showReservationFor && !hasReservation && (
-            <div style={{ width: "100%", maxWidth: 480 }}>
-              <ReservationSummary
-                productName={showReservationFor.name}
-                productEmoji={showReservationFor.imageEmoji}
-                unitPrice={showReservationFor.price}
-                quantity={1}
-                storeName={MOCK_STORE.name}
-                onConfirm={handleConfirm}
-                onCancel={() => setShowReservationFor(null)}
-              />
-            </div>
-          )}
-
-          {/* Reservation success */}
-          {hasReservation && session.reservation && (
-            <div style={{ width: "100%", maxWidth: 480 }}>
-              <ReservationSuccess
-                reservation={session.reservation}
-                onDone={resetSession}
-                onUpdate={(qty) =>
-                  session.reservation && updateReservation(session.reservation, qty)
-                }
-              />
-            </div>
-          )}
-
-          {/* Products */}
-          {hasProducts && !hasReservation && !showReservationFor && !hasSafety && (
-            <div style={{ width: "100%", maxWidth: 480 }}>
-              <div
-                style={{
-                  fontSize: "0.625rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "var(--color-kairo-muted)",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                {session.products.length} result{session.products.length !== 1 ? "s" : ""} found
+          {/* Live Playback */}
+          <section aria-labelledby="playback-heading" style={{ marginTop: "var(--space-3xl)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-lg)", flexWrap: "wrap", gap: "var(--space-md)" }}>
+              <h2 id="playback-heading" className="text-heading" style={{ margin: 0 }}>Live Playback</h2>
+              <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+                <button onClick={() => runScenario(activeScenarioId)} disabled={isRunning} className={isRunning ? "btn-ghost" : "btn-primary"} style={{ minWidth: "140px" }}>
+                  {isRunning ? (
+                    <><span className="pulse-ring" style={{ width: 8, height: 8, marginRight: 8 }} /> Running…</>
+                  ) : (
+                    <><PlayIcon size={16} /> Run Scenario</>
+                  )}
+                </button>
+                <button onClick={resetSession} disabled={session.transcript.length === 0 && !session.products?.length} className="btn-ghost">
+                  <RotateCcwIcon size={16} /> Reset
+                </button>
               </div>
-              <ProductGrid
-                products={session.products}
-                inventoryMap={MOCK_INVENTORY}
-                onReserve={handleReserve}
-              />
             </div>
-          )}
 
-          {/* Idle state prompt */}
-          {!activeScenario && (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "1rem",
-              }}
-            >
-              <p
-                style={{
-                  color: "var(--color-kairo-muted)",
-                  fontSize: "0.9375rem",
-                  lineHeight: 1.6,
-                }}
-              >
-                Select a demo scenario above to see KAIRO in action.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Transcript + Activity */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
-        >
-          <SectionHeader label="Conversation" />
-          <div
-            style={{ flex: "0 0 auto", borderBottom: "1px solid var(--color-kairo-border)" }}
-          >
-            <LiveTranscript entries={session.transcript} />
-          </div>
-
-          <SectionHeader label="Agent Activity" />
-          <div style={{ flex: 1, overflowY: "auto", padding: "0.875rem 1rem" }}>
-            <AgentActivity
-              steps={session.activities}
-              tools={session.toolHistory}
-            />
-          </div>
-
-          {/* Metrics bar */}
-          <div
-            style={{
-              padding: "0.75rem 1rem",
-              borderTop: "1px solid var(--color-kairo-border)",
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "0.5rem",
-            }}
-          >
-            <MetricItem
-              label="Latency"
-              value={
-                session.metrics.responseLatencyMs > 0
-                  ? `${session.metrics.responseLatencyMs}ms`
-                  : "—"
-              }
-            />
-            <MetricItem
-              label="Tools"
-              value={String(session.metrics.toolCallCount || "—")}
-            />
-            <MetricItem
-              label="Complete"
-              value={
-                session.metrics.taskCompletionRate > 0
-                  ? `${session.metrics.taskCompletionRate}%`
-                  : "—"
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* "Why KAIRO" section */}
-      <WhyKairo />
-
-      <style>{`
-        @media (max-width: 900px) {
-          .demo-layout {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
-    </KairoShell>
-    </ClientOnly>
-  );
-}
-
-function SectionHeader({ label }: { label: string }) {
-  return (
-    <div
-      style={{
-        padding: "0.625rem 1rem",
-        borderBottom: "1px solid var(--color-kairo-border)",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "0.6rem",
-          fontWeight: 700,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--color-kairo-muted)",
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function MetricItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--color-kairo-offwhite)" }}>
-        {value}
-      </div>
-      <div style={{ fontSize: "0.6rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-kairo-muted)" }}>
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function WhyKairo() {
-  const features = [
-    {
-      label: "Natural Voice",
-      desc: "Speak normally. No commands to learn.",
-      icon: "◎",
-    },
-    {
-      label: "Agentic Action",
-      desc: "Uses real tools and completes tasks.",
-      icon: "⟳",
-    },
-    {
-      label: "Live Context",
-      desc: "Remembers the full conversation.",
-      icon: "▣",
-    },
-    {
-      label: "Grounded",
-      desc: "Facts come from connected systems.",
-      icon: "◈",
-    },
-    {
-      label: "Responsible",
-      desc: "Sensitive requests are escalated safely.",
-      icon: "⊕",
-    },
-  ];
-
-  return (
-    <div
-      style={{
-        borderTop: "1px solid var(--color-kairo-border)",
-        padding: "2rem 2rem",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1.25rem",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "0.625rem",
-          fontWeight: 700,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--color-kairo-muted)",
-        }}
-      >
-        Why KAIRO
-      </div>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: "1rem",
-        }}
-      >
-        {features.map((f) => (
-          <div
-            key={f.label}
-            style={{
-              padding: "0.875rem",
-              background: "var(--color-kairo-surface)",
-              border: "1px solid var(--color-kairo-border)",
-              borderRadius: "10px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "1.125rem",
-                color: "var(--color-signal)",
-                marginBottom: "0.375rem",
-                fontFamily: "monospace",
-              }}
-            >
-              {f.icon}
-            </div>
-            <div
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                color: "var(--color-kairo-offwhite)",
-                marginBottom: "0.25rem",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {f.label}
-            </div>
-            <div
-              style={{
-                fontSize: "0.75rem",
-                color: "var(--color-kairo-muted)",
-                lineHeight: 1.5,
-              }}
-            >
-              {f.desc}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Multi-vertical future */}
-      <div style={{ marginTop: "0.5rem" }}>
-        <div
-          style={{
-            fontSize: "0.625rem",
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "var(--color-kairo-muted)",
-            marginBottom: "0.875rem",
-          }}
-        >
-          Built for more than retail
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-            gap: "0.75rem",
-          }}
-        >
-          {[
-            {
-              label: "Retail",
-              items: ["Products", "Inventory", "Reservation"],
-              active: true,
-            },
-            {
-              label: "Pharmacy",
-              items: ["Availability", "Pharmacist", "Safe Escalation"],
-              active: false,
-            },
-            {
-              label: "Healthcare",
-              items: ["Appointments", "Navigation", "Human Handoff"],
-              active: false,
-            },
-          ].map((v) => (
-            <div
-              key={v.label}
-              style={{
-                padding: "0.875rem",
-                background: v.active
-                  ? "color-mix(in srgb, var(--color-signal) 8%, transparent)"
-                  : "var(--color-kairo-surface)",
-                border: `1px solid ${v.active ? "color-mix(in srgb, var(--color-signal) 25%, transparent)" : "var(--color-kairo-border)"}`,
-                borderRadius: "10px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.8125rem",
-                  fontWeight: 700,
-                  color: v.active ? "var(--color-signal)" : "var(--color-kairo-subtle)",
-                  marginBottom: "0.375rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.375rem",
-                }}
-              >
-                {v.label}
-                {v.active && (
-                  <span
-                    style={{
-                      fontSize: "0.5625rem",
-                      background: "var(--color-signal)",
-                      color: "white",
-                      padding: "0.0625rem 0.375rem",
-                      borderRadius: "4px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    LIVE
-                  </span>
+            <div style={{ background: "var(--color-kairo-surface)", border: "1px solid var(--color-kairo-border)", borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ padding: "var(--space-lg)", maxHeight: "400px", overflowY: "auto" }}>
+                <LiveTranscript transcript={session.transcript} isStreaming={isRunning} className="demo-transcript" />
+                {session.transcript.length === 0 && !isRunning && (
+                  <div style={{ textAlign: "center", padding: "var(--space-2xl)", color: "var(--color-kairo-subtle)" }}>
+                    <PlayIcon size={48} style={{ marginBottom: "var(--space-md)", opacity: 0.4 }} />
+                    <p style={{ margin: 0, fontSize: "1rem" }}>Click "Run Scenario" to watch the conversation unfold</p>
+                  </div>
                 )}
               </div>
-              {v.items.map((item) => (
-                <div
-                  key={item}
-                  style={{
-                    fontSize: "0.6875rem",
-                    color: "var(--color-kairo-muted)",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  · {item}
+
+              {session.products && session.products.length > 0 && (
+                <div style={{ borderTop: "1px solid var(--color-kairo-border)", padding: "var(--space-md) var(--space-lg) var(--space-lg)", background: "rgba(0,0,0,0.01)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-md)" }}>
+                    <h3 style={{ fontSize: "0.8125rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-kairo-muted)", margin: 0 }}>
+                      Products Found ({session.products.length})
+                    </h3>
+                    <span className="chip" style={{ background: "var(--color-success-ghost)", color: "var(--color-success)" }}>In Stock</span>
+                  </div>
+                  <div style={{ display: "flex", gap: "var(--space-md)", overflowX: "auto", paddingBottom: "var(--space-sm)" }}>
+                     <ProductGrid products={session.products} inventoryMap={{}} onReserve={() => {}} />
+                  </div>
+                </div>
+              )}
+
+              {session.safetyState?.triggered && (
+                <div style={{ borderTop: "1px solid var(--color-kairo-border)", padding: "var(--space-md) var(--space-lg)", background: "var(--color-warning-ghost)", borderLeft: "4px solid var(--color-warning)" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-md)" }}>
+                    <AlertTriangleIcon size={20} style={{ color: "var(--color-warning)", flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-warning-dim)", margin: "0 0 0.25rem" }}>Safety Escalation Triggered</h4>
+                      <p style={{ fontSize: "0.8125rem", color: "var(--color-warning-dim)", margin: 0 }}>{session.safetyState.reason}. {session.safetyState.escalationAvailable && "Human handoff available."}</p>
+                    </div>
+                    {session.safetyState.escalationAvailable && (
+                      <button className="btn-ghost" style={{ padding: "0.375rem 0.75rem", fontSize: "0.8125rem" }}>
+                        <UserCheckIcon size={14} /> Escalate to Human
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {session.reservation && (
+                <div style={{ borderTop: "1px solid var(--color-kairo-border)", padding: "var(--space-lg)", background: "var(--color-pulse-ghost)" }}>
+                  <ReservationSummary productName={session.reservation.productName} productEmoji="🛍️" unitPrice={session.reservation.unitPrice} quantity={session.reservation.quantity} storeName={session.reservation.storeName} onConfirm={() => {}} onCancel={() => {}} />
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Technical Deep-Dive */}
+          <section style={{ marginTop: "var(--space-3xl)" }}>
+            <button onClick={() => setExpanded(!expanded)} aria-expanded={expanded} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--space-lg)", background: "var(--color-kairo-surface)", border: "1px solid var(--color-kairo-border)", borderRadius: "var(--radius-lg)", cursor: "pointer", textAlign: "left", transition: "all 0.15s ease" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)" }}>
+                <CodeIcon size={20} style={{ color: "var(--color-pulse)" }} />
+                <div>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--color-kairo-ink)", margin: 0 }}>Technical Breakdown</h3>
+                  <p style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)", margin: "0.125rem 0 0" }}>Latency, token usage, tool calls & reasoning trace</p>
+                </div>
+              </div>
+              <ChevronDownIcon size={20} style={{ color: "var(--color-kairo-muted)", transition: "transform 0.2s ease", transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }} />
+            </button>
+
+            {expanded && (
+              <div style={{ marginTop: "var(--space-md)", animation: "fade-up 0.3s ease forwards" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "var(--space-md)", marginBottom: "var(--space-xl)" }}>
+                  {[
+                    { label: "Total Latency", value: metrics.latency, unit: "ms", icon: ZapIcon },
+                    { label: "LLM Tokens", value: metrics.tokens, unit: "", icon: DatabaseIcon },
+                    { label: "Tool Calls", value: metrics.tools, unit: "", icon: WrenchIcon },
+                    { label: "Steps", value: metrics.steps, unit: "", icon: ListIcon },
+                  ].map((m) => (
+                    <div key={m.label} style={{ padding: "var(--space-md)", background: "white", border: "1px solid var(--color-kairo-border)", borderRadius: "var(--radius-md)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", marginBottom: "0.25rem" }}>
+                        <m.icon size={14} style={{ color: "var(--color-kairo-muted)" }} />
+                        <span style={{ fontSize: "0.6875rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-kairo-muted)" }}>{m.label}</span>
+                      </div>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--color-kairo-ink)", lineHeight: 1 }}>
+                        {m.value}<span style={{ fontSize: "1rem", fontWeight: 400, color: "var(--color-kairo-muted)" }}>{m.unit}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ background: "var(--color-kairo-ink)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                  <div style={{ padding: "var(--space-md)", borderBottom: "1px solid var(--color-kairo-border)" }}>
+                    <h4 style={{ margin: 0, fontSize: "0.8125rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-kairo-subtle)" }}>Agent Reasoning Trace</h4>
+                  </div>
+                  <pre style={{ margin: 0, padding: "var(--space-lg)", overflowX: "auto", fontSize: "0.75rem", lineHeight: 1.6 }}>
+                    <code style={{ color: "#e5e7eb" }}>{metrics.reasoningTrace}</code>
+                  </pre>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Architecture & Verticals */}
+          <section style={{ marginTop: "var(--space-3xl)" }}>
+            <header style={{ marginBottom: "var(--space-xl)" }}>
+              <h2 className="text-label" style={{ marginBottom: "var(--space-md)" }}>Architecture & Extensibility</h2>
+              <p className="text-body-lg" style={{ maxWidth: "560px" }}>
+                KAIRO's agentic core is vertical-agnostic. The same reasoning engine powers retail, pharmacy, and healthcare — swap tools, not architecture.
+              </p>
+            </header>
+            <div className="architecture-verticals">
+              <div className="animate-fade-up">
+                <div style={{ background: "var(--color-kairo-surface)", border: "1px solid var(--color-kairo-border)", borderRadius: "var(--radius-lg)", padding: "var(--space-xl)", minHeight: "280px", display: "flex", flexDirection: "column" }}>
+                  <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--color-kairo-ink)", margin: "0 0 var(--space-lg)" }}>Agentic Loop</h3>
+                  <ArchitectureDiagram />
+                </div>
+              </div>
+              {[
+                { label: "Retail", active: true, items: ["Product Discovery", "Inventory Sync", "Reservation Engine", "Loyalty Integration"], icon: StoreIcon },
+                { label: "Pharmacy", active: false, items: ["Drug Availability", "Pharmacist Escalation", "Interaction Checks", "Prescription Flow"], icon: PillIcon },
+                { label: "Healthcare", active: false, items: ["Appointment Booking", "Wayfinding", "Clinical Handoff", "Insurance Verify"], icon: HeartPulseIcon },
+              ].map((v, i) => (
+                <div key={v.label} className="animate-fade-up" style={{ animationDelay: `${0.1 + i * 0.05}s` }}>
+                  <div style={{ padding: "var(--space-lg)", background: "var(--color-kairo-surface)", border: `1px solid ${v.active ? "var(--color-signal)" : "var(--color-kairo-border)"}`, borderRadius: "var(--radius-lg)", height: "100%", display: "flex", flexDirection: "column" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "var(--space-md)" }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "var(--radius-md)", background: v.active ? "var(--color-signal)" : "var(--color-pulse-ghost)", display: "flex", alignItems: "center", justifyContent: "center", color: v.active ? "white" : "var(--color-pulse)" }}>
+                        <v.icon size={18} />
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: "0.9375rem", fontWeight: 600, color: "var(--color-kairo-ink)" }}>
+                          {v.label} {v.active && <span className="chip" style={{ fontSize: "0.5625rem", padding: "0.0625rem 0.375rem", marginLeft: "0.375rem", background: "var(--color-signal)", color: "white" }}>LIVE</span>}
+                        </h4>
+                      </div>
+                    </div>
+                    <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+                      {v.items.map((item) => (
+                        <li key={item} style={{ fontSize: "0.8125rem", color: "var(--color-kairo-muted)", display: "flex", alignItems: "center", gap: "0.375rem" }}>
+                          <span style={{ width: 4, height: 4, borderRadius: "50%", background: v.active ? "var(--color-signal)" : "var(--color-kairo-muted)", flexShrink: 0 }} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               ))}
             </div>
-          ))}
+          </section>
+
+          {/* Footer CTA */}
+          <footer style={{ marginTop: "var(--space-4xl)", paddingTop: "var(--space-2xl)", borderTop: "1px solid var(--color-kairo-border)", textAlign: "center" }}>
+            <div style={{ maxWidth: "480px", margin: "0 auto" }}>
+              <h3 className="text-heading" style={{ marginBottom: "var(--space-md)" }}>Ready to Build?</h3>
+              <p className="text-body" style={{ marginBottom: "var(--space-xl)", color: "var(--color-kairo-muted)" }}>
+                Start a real conversation with KAIRO. No simulation — live inventory, real reservations, actual safety guardrails.
+              </p>
+              <Link href="/conversation" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.0625rem" }}>
+                Launch Assistant
+                <ArrowRightIcon size={20} style={{ marginLeft: "0.5rem" }} />
+              </Link>
+              <p style={{ marginTop: "var(--space-lg)", fontSize: "0.8125rem", color: "var(--color-kairo-subtle)" }}>
+                Or <Link href="/docs" style={{ color: "var(--color-pulse)", textDecoration: "underline" }}>read the docs</Link> to integrate KAIRO into your stack.
+              </p>
+            </div>
+          </footer>
         </div>
-      </div>
-    </div>
+      </KairoShell>
+    </ClientOnly>
   );
 }
