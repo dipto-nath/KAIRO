@@ -229,3 +229,25 @@
 {"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
 {"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
 {"timestamp":"00:57:19.453","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"00:58:52.644","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone stopped and cleaned up"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"01:00:42.097","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"01:00:42.098","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"01:00:42.098","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"01:00:42.098","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"01:00:42.099","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"01:00:42.099","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed (src/app/conversation/page.tsx:48:15)"}
+{"timestamp":"01:00:42.099","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\" \"(src/app/conversation/page.tsx:48:15)\""}
+{"timestamp":"01:00:42.099","source":"Browser","level":"ERROR","message":"Failed to start session: TypeError: Load failed"}
+{"timestamp":"01:00:42.099","source":"Server","level":"ERROR","message":"[browser] \"Failed to start session:\" \"TypeError: Load failed\""}
+{"timestamp":"01:00:42.114","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"01:00:42.114","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
+{"timestamp":"01:00:42.114","source":"Browser","level":"LOG","message":"Created own MediaStream for visualization"}
+{"timestamp":"01:00:42.114","source":"Browser","level":"LOG","message":"Microphone initialized successfully"}
